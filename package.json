@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
+    "bcryptjs": "^3.0.2",
+    "concurrently": "^9.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.0",
+    "ms": "^2.1.3",
+    "multer": "^2.0.1",
+    "mysql2": "^3.14.1",
+    "pg": "^8.16.1",
+    "sequelize": "^6.37.7",
+    "uuid": "^11.1.0"
+  },
+  "scripts": {
+    "install-all": "npm install && cd view/admin && npm install",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cross-env NODE_ENV=development nodemon index.js",
+    "dev:client": "cd view/admin && cross-env NODE_ENV=development npm run dev",
+    "dev:web": "cd view/front && cross-env NODE_ENV=development npm run dev",
+    "build-client": "cd view/admin && npm run build",
+    "build-web": "cd view/front && npm run build",
+    "start": "npm run start:server",
+    "start:server": "cross-env NODE_ENV=production node index.js"
+  }
+}

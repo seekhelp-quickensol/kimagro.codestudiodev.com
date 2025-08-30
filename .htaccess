@@ -1,0 +1,6 @@
+# CloudLinux Passenger Node.js setup
+PassengerAppRoot "/home2/codestud/public_html/kimagro.codestudiodev.com"
+PassengerBaseURI "/"
+PassengerNodejs "/home2/codestud/nodevenv/public_html/kimagro.codestudiodev.com/20/bin/node"
+PassengerAppType node
+PassengerStartupFile index.js

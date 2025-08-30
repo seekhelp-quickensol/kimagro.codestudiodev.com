@@ -1,0 +1,166 @@
+{
+    "translation": {
+        "header": {
+            "About Us": "About Us",
+            "Products": "Products",
+            "Our innovations": "Our innovations",
+            "Media": "Media",
+            "App": "App",
+            "Contact Us": "Contact Us",
+            "English": "English",
+            "Hindi": "Hindi",
+            "Search": "Search",
+            "Search products or categories": "Search products or categories...",
+            "Loading": "Loading...",
+            "Categories": "Categories",
+            "No categories found": "No categories found",
+            "No products found": "No products found",
+            "Category": "Category",
+            "Unknown": "Unknown",
+            "No results found": "No results found",
+            "Error": "Error",
+            "Open menu": "Open menu",
+            "Close menu": "Close menu"
+        },
+        "footer": {
+            "companyName": "Kimeya Agro Solutions Private Limited",
+            "address": "Kothrud Pune 411038",
+            "customerCare": "Customer Care: 7883539848 | 9244121790",
+            "email": "info@kimeya.in",
+            "links": {
+                "about": "About Us",
+                "products": "Products",
+                "innovations": "Our Innovation",
+                "media": "Media",
+                "app": "App",
+                "contact": "Contact"
+            },
+            "copyright": "© {year} Kimeya Agro Solutions. All rights reserved."
+        },
+        "home": {
+            "hero": {
+                "farmers_growth": "Farmer's Growth",
+                "our_achievement": "is Our Achievement!",
+                "videoError": "Video not available at the moment."
+            },
+            "intro": {
+                "title": "KIMEYA AGRO SOLUTIONS AT YOUR FINGERTIPS!",
+                "description": "Kineya Agro connects you to the world of agriculture products at your convenience. Explore our range of products, designed to empower farmers with high-quality solutions for a sustainable future."
+            },
+            "categories": {
+                "title": "PRODUCT RANGE CATEGORY",
+                "Coming Soon": "Coming Soon",
+                "noCategories": "No categories available at the moment."
+            }
+        },
+        "aboutUs": {
+            "limeGreenSection": {
+                "description": "Wherever you are in the world, <bold>Kimeya Agro Solutions</bold> is your trusted partner in Crop Care. Our innovative products combine the power of Advanced Science & Technology with Agrohomeopathy to boost productivity and profitability for farmers!"
+            },
+            "visionMission": {
+                "vision": {
+                    "title": "Our Vision",
+                    "description": "Our vision for Kimeya is to provide high quality solutions for improving productivity & profitability of Indian farmers through cutting edge Science & Technology. Sustainability - preserving and respecting Mother Earth's natural resources, is just as important to us as growing our company. We believe farming isn’t a battle against nature, but a partnership with it. Our commitment to make a positive contribution towards society is evident from the range of concentrated products, organic & bio fertilizers/ bio control agents launched by us."
+                },
+                "mission": {
+                    "title": "Our Mission",
+                    "description": "Our mission is to develop and deliver high-quality, innovative, eco-friendly fertilizers and pesticides that maximize farm productivity while preserving soil health. Through advanced research on targeted delivery systems and potentiated plant extracts, we aim to make agriculture more efficient, sustainable and profitable. We are committed to empowering farmers with the best tools and knowledge to grow healthier crops with minimal environmental impact."
+                },
+                "coreValues": {
+                    "title": "Core Values",
+                    "qualityIntegrity": {
+                        "title": "Quality & Integrity",
+                        "description": "Every product we create is tested for effectiveness and safety, inputs."
+                    },
+                    "farmerEmpowerment": {
+                        "title": "Farmer Empowerment",
+                        "description": "We believe in equipping farmers with the best products."
+                    },
+                    "collaborationGrowth": {
+                        "title": "Collaboration & Growth",
+                        "description": "We foster partnerships with researchers, agronomists."
+                    }
+                }
+            },
+            "team": {
+                "title": "The Team",
+                "vijaya": {
+                    "name": "Dr. Vijaya Baragje (Patil)",
+                    "title": "Managing Director",
+                    "description": "Dr. Vijaya has Ph.D. in Physics – Nanotechnology & Biomimetics with 27 international publications. She has over 18 years of experience as a scientist in R&D, developing & launching products across multiple countries for leading multinationals. With 21 patent filings & recognition through the prestigious International Young Scientist Award by IUPAC in Brisbane, Australia, her expertise in nanotechnology & enzymes is widely acknowledged. Despite her global career, Vijaya’s deep connection to her family farm has gained her the hands-on experience, integrating her scientific knowledge with sustainable farming practices. She is also trained in Agrohomeopathy & advanced plant care systems. Her lifelong passion for soil and crops drives Kimeya’s commitment to delivering innovative and sustainable agricultural solutions."
+                },
+                "dinesh": {
+                    "name": "Dinesh Patil",
+                    "title": "Vice President Marketing",
+                    "description": "Brings over 20 years of experience in agricultural sales and marketing, offering valuable expertise and strategic insights. Well known for his deep knowledge of banana farming and agricultural practices, he has played a key role in driving our company’s growth. As a respected member of the ICAR (Indian Council of Agricultural Research) under the Ministry of Agriculture, he actively contributes to shaping agricultural policies. His dedication has earned him the prestigious ‘Akhil Bhartiya Khandesh Kohinoor’ award, recognizing his contributions to the farming community. With hands-on industry experience, Dinesh excels in identifying market opportunities, expanding our product portfolio, and empowering farmers to achieve greater yields and success."
+                }
+            },
+            "teams": {
+                "sangeeta": {
+                    "name": "Sangeeta Patil",
+                    "title": "Director Administration & Operation"
+                },
+                "milind": {
+                    "name": "Milind Bargaje",
+                    "title": "Business Advisor"
+                },
+                "jayashree": {
+                    "name": "Jayashree Pawar",
+                    "title": "Production & Quality"
+                },
+                "ramdas": {
+                    "name": "Ramdas Pawar",
+                    "title": "Manufacturing Operations"
+                }
+            }
+        },
+        "innovationPage": {
+            "HeroSection": {
+                "title": "Our Innovations <br/>",
+                "subtitle": "The Foundation of Our Products",
+                "description": "At Kimeya, our products are built on certain core technological platforms, each addressing the pressing challenges of modern intensive agriculture including depletion of soil fertility, complex nutritional demands, and sustainable pest control. <br/><br/> Our approach uniquely blends cutting-edge science such as Plant Growth Regulators (PGRs), Biotechnology, and Nanotechnology with the timeless wisdom of 'Vriksha-Ayurveda' for selecting botanical extracts (either fermenting them or potentiizing) to maintain elemental balance & natural harmony in crops. This fusion of modern innovation with ancient plant knowledge allows us to create holistic, highly effective solutions tailored to the essential needs of crops at every stage.<br/><br/> The product in our portfolio is developed by combining one or more technological platforms, thoughtfully selected to meet the demands of a certain crop stage. By doing so, we ensure that every product we recommend for a given crop stage addresses all key physiological and protective requirements of the plant, resulting in enhanced yield, superior crop quality, and long-term soil vitality."
+            },
+            "keySection": {
+                "title": "Core Technology Platform:",
+                "description": "This platform-based innovation model is the backbone of Kimea's commitment to sustainable and intelligent agriculture."
+            }
+        },
+        "categoryPage": {
+            "title": "PRODUCT CATEGORY",
+            "noCategories": "No categories available at the moment."
+        },
+        "productPage": {
+            "noProduct": "No product available at the moment.",
+            "noMoreProducts": "No more products available in this category.",
+            "loadMore": "Load More",
+            "loadingMore": "Loading more products..."
+        },
+        "productDetail": {
+            "backButton": "Back",
+            "downloadBrochure": "Download Brochure"
+        },
+        "contactPage": {
+            "title": "We’d love to hear from you",
+            "address": "Kimeya Agro Solutions Private Limited<br />Kothrud, Pune 411038",
+            "form": {
+                "namePlaceholder": "Your Name*",
+                "emailPlaceholder": "Your Email*",
+                "mobilePlaceholder": "Mobile Number*",
+                "companyPlaceholder": "Company",
+                "titlePlaceholder": "Title",
+                "messagePlaceholder": "Message",
+                "submitButton": "Submit"
+            },
+            "thankYouMessage": "Thank you for reaching out to us! We appreciate your interest and will get back to you as soon as possible.",
+            "errorMessage": "There was an error submitting your form. Please try again later."
+        },
+        "tabs": {
+            "all": "All",
+            "photos": "Photos",
+            "videos": "Videos",
+            "noData": "No categories found for this media type.",
+            "backtocategories":"back to categories"
+          }
+        
+    }
+}
