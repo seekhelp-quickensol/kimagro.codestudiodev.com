@@ -96,7 +96,7 @@ const updateDesignation = async (req, res) => {
 
   try {
     const existing = await designationModal.findOne({
-      where: { designation_name, is_deleted: "0" },
+      where: { designation_name, is_deleted: "0",id: { [Op.ne]: id } },
     });
 
     if (existing) {

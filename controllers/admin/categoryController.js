@@ -79,7 +79,7 @@ const createCategory = async (req, res) => {
     if (existing) {
       return res.status(200).json({
         success: false,
-        message: "Category (English) already exists",
+        message: "Category in english already exists",
         data: {},
       });
     }
@@ -91,7 +91,7 @@ const createCategory = async (req, res) => {
     if (existingHi) {
       return res.status(200).json({
         success: false,
-        message: "Category (Hindi) already exists",
+        message: "Category in hindi already exists",
         data: {},
       });
     }
@@ -127,7 +127,7 @@ const updateCategory = async (req, res) => {
     if (existing) {
       return res.status(200).json({
         success: false,
-        message: "Category (English) already exists",
+        message: "Category in english already exists",
         data: {},
       });
     }
@@ -139,7 +139,7 @@ const updateCategory = async (req, res) => {
     if (existingHi) {
       return res.status(200).json({
         success: false,
-        message: "Category (Hindi) already exists",
+        message: "Category in hindi already exists",
         data: {},
       });
     }

@@ -23,9 +23,10 @@ export default function SkuPage() {
     { value: "kg", label: "Kg" },
     { value: "gram", label: "Gram" },
     { value: "ml", label: "ml" },
+    { value: "liter", label: "liter" },
   ];
   const [refresh, setRefresh] = useState(false);
-  const[title,setTitle] = useState<string>("Add SKU Master");;
+  const [title, setTitle] = useState<string>("Add SKU Master");
 
   Modal.setAppElement("#root");
 
@@ -48,16 +49,14 @@ export default function SkuPage() {
       quantity: "",
       unit: "",
     });
- 
   };
 
   const onSubmit = async (data: SKUFormValues) => {
-  
     try {
       const formData = new FormData();
       formData.append("quantity", data.quantity);
       formData.append("unit", data.unit);
- 
+
       for (let [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
@@ -65,13 +64,12 @@ export default function SkuPage() {
       const method = id ? "put" : "post";
       const response = await submitSKUForm(id ?? null, formData, method);
       const { success, message } = response.data;
-      success ? toast.success(`${message}`) : toast.error( `${message}`);
+      success ? toast.success(`${message}`) : toast.error(`${message}`);
       if (success) {
         resetForm();
         navigate("/add-sku-master");
         setRefresh(!refresh);
-      }
-      else {
+      } else {
         toast.error(`Error: ${message}`);
       }
     } catch (err) {
@@ -101,8 +99,7 @@ export default function SkuPage() {
           });
         })
         .catch(() => toast.error(" Error fetching SKU data"));
-    }
-    else{
+    } else {
       setTitle("Add SKU Master");
     }
   }, [id, reset]);
@@ -117,7 +114,7 @@ export default function SkuPage() {
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-6">
               <Label>
-                Quantity<span className="text-red-500">*</span>
+                Quantity <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="quantity"
@@ -131,7 +128,7 @@ export default function SkuPage() {
             </div>
             <div className="col-span-12 md:col-span-6 relative">
               <Label>
-                Unit<span className="text-red-500">*</span>
+                Unit <span className="text-red-500">*</span>
               </Label>
               <ControlledSelect
                 name="unit"
@@ -146,7 +143,7 @@ export default function SkuPage() {
                 type="submit"
                 className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                 // disabled={isSubmitting}>
-                >
+              >
                 {/* {loading ? "Submitting..." : "Submit"} */}
                 Submit
               </button>
@@ -155,10 +152,7 @@ export default function SkuPage() {
         </form>
       </ComponentCard>
       <div className="p-4 bg-white rounded-xl shadow">
-        <SKUList
-          refresh={refresh}
-          setRefresh={setRefresh}
-        />
+        <SKUList refresh={refresh} setRefresh={setRefresh} />
       </div>
     </div>
   );

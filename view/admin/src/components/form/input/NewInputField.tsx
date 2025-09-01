@@ -10,6 +10,10 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string;
   success?: boolean;
   className?: string;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+
 }
 
 const NewInput: FC<InputProps> = ({

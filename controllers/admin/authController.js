@@ -3,14 +3,14 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const ms = require("ms");
 
-
 // Login Route
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await authModel.findOne({ where: { email } });
-    const passwordMatch = user && await bcrypt.compare(password, user.password);
+    const passwordMatch =
+      user && (await bcrypt.compare(password, user.password));
 
     if (!user || !passwordMatch) {
       return res.status(401).json({
@@ -19,20 +19,14 @@ const loginUser = async (req, res) => {
         data: null,
       });
     }
-
     const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
       expiresIn: ms(process.env.ACCESS_TOKEN_DURATION),
     });
-
-
-
-  
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: ms(process.env.ACCESS_TOKEN_DURATION),
     });
-
 
     res.status(200).json({
       success: true,
@@ -116,11 +110,8 @@ const logoutUser = async (req, res) => {
   }
 };
 
-
-
 module.exports = {
   loginUser,
   fetchSession,
   logoutUser,
-
 };

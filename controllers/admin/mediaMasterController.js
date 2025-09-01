@@ -3,12 +3,12 @@ const mediaModel = require("../../models/mediaModel");
 
 const getAllcategoryMaster = async (req, res) => {
   try {
-    const medias = await mediaModel.findAll({
+   const medias = await mediaModel.findAll({
       where: {
         is_deleted: "0",
       },
+      order: [['id', 'DESC']], 
     });
-
     res.status(200).json({
       success: true,
       message: "Record fetched successfully",
@@ -60,7 +60,7 @@ const getMediaById = async (req, res) => {
       data: response,
     });
   } catch (error) {
-    console.error("Error fetching Media:", error);
+    console.error("Error fetching Media:", error); 
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -79,7 +79,7 @@ const createMedia = async (req, res) => {
     if (existing) {
       return res.status(200).json({
         success: false,
-        message: "Category (English) already exists for this media type",
+        message: "Category in english already exists for this media type",
         data: {},
       });
     }
@@ -91,7 +91,7 @@ const createMedia = async (req, res) => {
     if (existingHi) {
       return res.status(200).json({
         success: false,
-        message: "Category (Hindi) already exists for this media type",
+        message: "Category in hindi already exists for this media type",
         data:{},
       });
     }
@@ -159,7 +159,7 @@ const updateMedia = async (req, res) => {
     if (existing) {
       return res.status(200).json({
         success: false,
-        message: "Category (English) already exists for this media type",
+        message: "Category in english already exists for this media type",
         data:{},
       });
     }
@@ -171,7 +171,7 @@ const updateMedia = async (req, res) => {
     if (existingHi) {
       return res.status(200).json({
         success: false,
-        message: "Category (Hindi) already exists for this media type",
+        message: "Category in hindi already exists for this media type",
        data:{},
       });
     }

@@ -1,66 +1,81 @@
 import { Contact } from "lucide-react";
 import { Trans, useTranslation } from "react-i18next";
 import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useState } from "react";
 import { submitContactForm } from "../services/service";
 
 // Define the form data interface
-interface ContactFormData {
-  name: string;
-  email: string;
-  mobile: string;
-  company: string;
-  title: string;
-  message: string;
-}
+// interface ContactFormData {
+//   name: string;
+//   email: string;
+//   mobile: string;
+//   company?: string | null | undefined;
+//   title?: string | null | undefined;
+//   message?: string | null | undefined;
+// }
 
-// Yup validation schema
-const validationSchema = yup.object({
-  name: yup
-    .string()
-    .required("Name is required")
-    .min(2, "Name must be at least 2 characters"),
-  email: yup
-    .string()
-    .required("Email is required")
-    .email("Please enter a valid email address"),
-  mobile: yup
-    .string()
-    .required("Mobile number is required")
-    .matches(/^\d{10}$/, "Mobile number must be exactly 10 digits")
-    .min(10, "Mobile number must be at least 10 digits"),
-  company: yup
-    .string()
-    .required("Company name is required")
-    .min(2, "Company name must be at least 2 characters"),
-  title: yup
-    .string()
-    .required("Job title is required")
-    .min(2, "Job title must be at least 2 characters"),
-  message: yup
-    .string()
-    .required("Message is required")
-    .min(10, "Message must be at least 10 characters")
-    .max(500, "Message must not exceed 500 characters"),
-});
+
 
 export default function ContactForm() {
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
-  }>({ type: null});
+  }>({ type: null });
 
+
+
+  const validationSchema = yup.object({
+    name: yup
+      .string()
+      .required(t("contactPage.form.validation.nameRequired")),
+    email: yup
+      .string()
+      .required(t("contactPage.form.validation.emailRequired"))
+      .email(t("contactPage.form.validation.emailInvalid")),
+
+    mobile: yup
+      .string()
+      .required(t("contactPage.form.validation.mobileRequired"))
+      .matches(/^\d{10}$/, t("contactPage.form.validation.mobileInvalid"))
+      .min(10, t("contactPage.form.validation.mobileInvalid")),
+    company: yup
+      .string()
+      .nullable()
+      .notRequired(),
+    title: yup
+      .string()
+      .nullable()
+      .notRequired(),
+    message: yup
+      .string()
+      .nullable()
+      .notRequired(),
+      
+  });
+  const contactSchema = yup.object({
+    name: yup.string().required(),
+    email: yup.string().required().email(),
+    mobile: yup.string().required().matches(/^\d{10}$/, "Must be 10 digits"),
+    company: yup.string().nullable().notRequired(),
+    title: yup.string().nullable().notRequired(),
+    message: yup.string().nullable().notRequired(),
+  });
+  
+  type ContactFormData = yup.InferType<typeof contactSchema>;
+
+  const resolver = yupResolver(validationSchema) as Resolver<ContactFormData>;
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
     reset,
+    setValue
   } = useForm<ContactFormData>({
-    resolver: yupResolver(validationSchema),
+    resolver,
     mode: "onChange", // Validate on change for better UX
   });
 
@@ -74,9 +89,9 @@ export default function ContactForm() {
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("mobile", data.mobile);
-      formData.append("company", data.company);
-      formData.append("title", data.title);
-      formData.append("message", data.message);
+      formData.append("company", data.company || "-");
+      formData.append("title", data.title || "-");
+      formData.append("message", data.message || "-");
       const response = await submitContactForm(formData);
       const result = response.data;
 
@@ -86,7 +101,6 @@ export default function ContactForm() {
 
       setSubmitStatus({
         type: "success",
-      
       });
       reset(); // Clear the form
     } catch (error) {
@@ -98,7 +112,8 @@ export default function ContactForm() {
       setTimeout(() => {
         setSubmitStatus({ type: null }); // Reset status after 5 seconds
       }
-      , 5000); // Adjust the timeout as needed
+        , 5000); // Adjust the timeout as needed
+
     }
   };
 
@@ -136,7 +151,7 @@ export default function ContactForm() {
                 <Trans
                   i18nKey="contactPage.address"
                   components={{
-                    br: <br />
+                    br: <br />,
                   }}
                 />
               </p>
@@ -153,17 +168,18 @@ export default function ContactForm() {
           {/* Status Message */}
           {submitStatus.type && (
             <div
+
               className={`mb-4 p-3 rounded ${submitStatus.type === "success"
-                  ? "bg-green-100 text-green-700 border border-green-300"
-                  : "bg-red-100 text-red-700 border border-red-300"
+                ? "bg-green-100 text-green-700 border border-green-300"
+                : "bg-red-100 text-red-700 border border-red-300"
                 }`}
             >
+
               {submitStatus.type === "success" ? (
                 <p>{t("contactPage.thankYouMessage")}</p>
               ) : submitStatus.type === "error" ? (
                 <p>{t("contactPage.errorMessage")}</p>
-              ) : null
-              }
+              ) : null}
             </div>
           )}
 
@@ -173,11 +189,14 @@ export default function ContactForm() {
                 {...register("name")}
                 type="text"
                 placeholder={t("contactPage.form.namePlaceholder")}
-                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${errors.name ? "border-red-500" : "border-[#CFF24D]"
-                  }`}
+                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${
+                  errors.name ? "border-red-500" : "border-[#CFF24D]"
+                }`}
               />
               {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.name.message}
+                </p>
               )}
             </div>
 
@@ -186,11 +205,19 @@ export default function ContactForm() {
                 {...register("email")}
                 type="email"
                 placeholder={t("contactPage.form.emailPlaceholder")}
-                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${errors.email ? "border-red-500" : "border-[#CFF24D]"
-                  }`}
+                onChange={(e) => {
+                  const lowercaseEmail = e.target.value.toLowerCase();
+                  setValue("email", lowercaseEmail, { shouldValidate: true });
+                }}
+              
+                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${
+                  errors.email ? "border-red-500" : "border-[#CFF24D]"
+                }`}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -199,11 +226,14 @@ export default function ContactForm() {
                 {...register("mobile")}
                 type="tel"
                 placeholder={t("contactPage.form.mobilePlaceholder")}
-                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${errors.mobile ? "border-red-500" : "border-[#CFF24D]"
-                  }`}
+                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${
+                  errors.mobile ? "border-red-500" : "border-[#CFF24D]"
+                }`}
               />
               {errors.mobile && (
-                <p className="text-red-500 text-sm mt-1">{errors.mobile.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.mobile.message}
+                </p>
               )}
             </div>
 
@@ -212,11 +242,14 @@ export default function ContactForm() {
                 {...register("company")}
                 type="text"
                 placeholder={t("contactPage.form.companyPlaceholder")}
-                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${errors.company ? "border-red-500" : "border-[#CFF24D]"
-                  }`}
+                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${
+                  errors.company ? "border-red-500" : "border-[#CFF24D]"
+                }`}
               />
               {errors.company && (
-                <p className="text-red-500 text-sm mt-1">{errors.company.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.company.message}
+                </p>
               )}
             </div>
 
@@ -225,11 +258,14 @@ export default function ContactForm() {
                 {...register("title")}
                 type="text"
                 placeholder={t("contactPage.form.titlePlaceholder")}
-                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${errors.title ? "border-red-500" : "border-[#CFF24D]"
-                  }`}
+                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 ${
+                  errors.title ? "border-red-500" : "border-[#CFF24D]"
+                }`}
               />
               {errors.title && (
-                <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.title.message}
+                </p>
               )}
             </div>
 
@@ -238,22 +274,26 @@ export default function ContactForm() {
                 {...register("message")}
                 placeholder={t("contactPage.form.messagePlaceholder")}
                 rows={4}
-                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 resize-none ${errors.message ? "border-red-500" : "border-[#CFF24D]"
-                  }`}
+                className={`w-full border-b focus:outline-none py-2 text-gray-700 placeholder-gray-500 resize-none ${
+                  errors.message ? "border-red-500" : "border-[#CFF24D]"
+                }`}
               />
               {errors.message && (
-                <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.message.message}
+                </p>
               )}
             </div>
 
             <button
               type="submit"
-              disabled={isSubmitting || !isValid}
+              // disabled={isSubmitting || !isValid}
               className={`px-6 py-2 text-sm font-semibold rounded-[3px] transition-colors ${isSubmitting || !isValid
-                  ? "bg-[#d9efcc] text-gray-600 cursor-not-allowed"
-                  : "bg-[#4b8b3b] text-white hover:bg-[#7EB33E]"
+                ? "bg-[#d9efcc] text-gray-600 cursor-not-allowed"
+                : "bg-[#CFF24D] text-white hover:bg-[#7EB33E]"
                 }`}
             >
+
               {isSubmitting
                 ? "Submitting..."
                 : t("contactPage.form.submitButton")}

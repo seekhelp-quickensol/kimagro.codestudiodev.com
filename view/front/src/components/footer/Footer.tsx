@@ -39,9 +39,9 @@ export default function Footer() {
               </p>
               {/* Social Icons */}
               <div className="flex space-x-3 mt-3">
-                <a href="https://youtube.com/@sangeetapatil-pw6dv?si=Hb9u0IWT57rsAaaR"><img src="../assets/images/brand-02.svg" alt="Facebook" className="h-5" /></a>
+                <a href="https://www.facebook.com/share/1AG1VtYQ4K/"><img src="../assets/images/brand-02.svg" alt="Facebook" className="h-5" /></a>
                 <a href="https://www.instagram.com/sangeeta.patil.334?igsh=bHp5dTV3MDE1ZzJr"><img src="../assets/images/brand-04.svg" alt="Instagram" className="h-5" /></a>
-                <a href="https://www.facebook.com/share/1AG1VtYQ4K/"><img src="../assets/images/brand-05.svg" alt="YouTube" className="h-5" /></a>
+                <a href="https://youtube.com/@sangeetapatil-pw6dv?si=Hb9u0IWT57rsAaaR"><img src="../assets/images/brand-06.svg" alt="YouTube" className="h-5" /></a>
               </div>
             </div>
 
@@ -50,7 +50,7 @@ export default function Footer() {
               <Link to="/about">&gt; {
                 t("footer.links.about")
             }</Link>
-              <Link to="/products">&gt; {
+              <Link to="/product-categories">&gt; {
                 t("footer.links.products")
             }</Link>
               <Link to="/innovations">&gt; 
@@ -61,9 +61,9 @@ export default function Footer() {
               <Link to="/media">&gt; {
                 t("footer.links.media")
             }</Link>
-              <Link to="/app">&gt; {
+              {/* <Link to="/app">&gt; {
                 t("footer.links.app")
-            }</Link>
+            }</Link> */}
               <Link to="/contact">&gt; {
                 t("footer.links.contact")
               }</Link>
@@ -76,7 +76,14 @@ export default function Footer() {
 <div className="hidden sm:grid grid-cols-2 gap-8 ">
   {/* Left Section */}
   <div>
-    <img src="../assets/images/Kimaya.png" alt="Kimeya Agro Solutions" className="h-12 mb-4" />
+    {/* <img src="../assets/images/Kimaya.png" alt="Kimeya Agro Solutions" className="h-12 mb-4" /> */}
+     <Link to="/" >
+            <img
+              src="../assets/images/Kimaya.png"
+              alt="Kimeya Agro Solutions"
+              className="h-12 mb-4"
+            />
+          </Link>
     <p className="mb-1">
       {t("footer.companyName")}
     </p>
@@ -90,9 +97,9 @@ export default function Footer() {
       t("footer.email")
 }</p>
     <div className="flex space-x-4">
-      <a href="#"><img src="../assets/images/brand-02.svg" alt="Facebook" className="h-6" /></a>
-      <a href="#"><img src="../assets/images/brand-04.svg" alt="Instagram" className="h-6" /></a>
-      <a href="#"><img src="../assets/images/brand-05.svg" alt="YouTube" className="h-6" /></a>
+    <a href="https://www.facebook.com/share/1AG1VtYQ4K/"><img src="../assets/images/brand-02.svg" alt="Facebook" className="h-6" /></a>
+    <a href="https://www.instagram.com/sangeeta.patil.334?igsh=bHp5dTV3MDE1ZzJr"><img src="../assets/images/brand-04.svg" alt="Instagram" className="h-6" /></a>
+    <a href="https://youtube.com/@sangeetapatil-pw6dv?si=Hb9u0IWT57rsAaaR"><img src="../assets/images/brand-06.svg" alt="YouTube" className="h-6" /></a>
     </div>
   </div>
 
@@ -102,7 +109,7 @@ export default function Footer() {
       <Link to="/about">&gt; {
         t("footer.links.about")
       }</Link>
-      <Link to="/products">&gt; {
+      <Link to="/product-categories">&gt; {
         t("footer.links.products")
       
     }</Link>
@@ -118,9 +125,7 @@ export default function Footer() {
         t("footer.links.media")
       }
       </Link>
-      <Link to="/app">&gt; {
-        t("footer.links.app")
-    }</Link>
+      
       <Link to="/contact">&gt; {
 
         t("footer.links.contact")

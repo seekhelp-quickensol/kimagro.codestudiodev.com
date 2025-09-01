@@ -335,3 +335,15 @@ export const submitDesignationForm = (
       : `api/designation/add-designation`,
     data: formData,
   });
+
+  interface uniqueResponse {
+    data: {};
+    success: boolean;
+    message: string;
+    isUnique:boolean;
+    
+  }
+  export const getUniqueService = (
+    api: string
+  ): Promise<AxiosResponse<uniqueResponse>> =>
+    instance.get(api);

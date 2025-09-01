@@ -47,7 +47,7 @@ interface ApiResponse {
 }
 
 export default function MediaMasterPage() {
-  const [title,setTitle] = useState<string>("Add media category");
+  const [title, setTitle] = useState<string>("Add media category");
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>("all");
   const [filteredUrl, setFilteredUrl] = useState<string>(
     "/api/medias/ajax/media-list"
@@ -55,7 +55,7 @@ export default function MediaMasterPage() {
   const navigate = useNavigate();
   const capitalize = (str: string): string =>
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-  
+
   useEffect(() => {
     if (mediaFilter === "all") {
       setFilteredUrl("/api/medias/ajax/media-list");
@@ -70,28 +70,23 @@ export default function MediaMasterPage() {
     {
       name: "Sr. No.",
       selector: (row: MediaCategoryCol) => row[0],
-      
     },
     {
       name: "Media Category",
       selector: (row: MediaCategoryCol) => capitalize(row[2]),
-     
     },
     {
       name: "Category Name (English)",
       selector: (row: MediaCategoryCol) => row[3],
-     
     },
     {
       name: "Category Name (Hindi)",
       selector: (row: MediaCategoryCol) => row[4],
-     
     },
     {
       name: "Status",
       selector: (row: MediaCategoryCol) => row[5],
       cell: (row: MediaCategoryCol) => (row[5] === "1" ? "Active" : "Inactive"),
-     
     },
     {
       name: "Actions",
@@ -111,14 +106,12 @@ export default function MediaMasterPage() {
           </button>
           <button
             onClick={() => handleToggleStatus(row[1], row[5])}
-            className="btn btn-sm btn-info text-[16px]"
-             >
-           
-              {row[5] === "1" ? <CheckLineIcon  /> :  <CloseLineIcon/>}
+            className="btn btn-sm btn-info text-[16px]">
+            {row[5] === "1" ? <CheckLineIcon /> : <CloseLineIcon />}
           </button>
         </div>
       ),
-     
+
       ignoreRowClick: true,
       button: true,
     },
@@ -164,17 +157,16 @@ export default function MediaMasterPage() {
         confirmButtonText: "Yes, delete it!",
         cancelButtonText: "Cancel",
       });
-    
+
       if (result.isConfirmed) {
-    
-      const response: ApiResponse = await deleteItem("tbl_media_master", id);
-      if (response.data.success) {
-        toast.success(` ${response.data.message}`);
-        setRefresh(!refresh);
-      } else {
-        toast.error(`Error: ${response.data.message}`);
+        const response: ApiResponse = await deleteItem("tbl_media_master", id);
+        if (response.data.success) {
+          toast.success(` ${response.data.message}`);
+          setRefresh(!refresh);
+        } else {
+          toast.error(`Error: ${response.data.message}`);
+        }
       }
-    }
     } catch (error) {
       console.error("Error deleting item:", error);
       toast.error(" Failed to delete item");
@@ -236,9 +228,7 @@ export default function MediaMasterPage() {
       const method = id ? "put" : "post";
       const response = await submitMediaForm(id ?? null, formData, method);
       const { success, message } = response.data;
-      success
-        ? toast.success(`${message}`)
-        : toast.error(`Error: ${message}`);
+      success ? toast.success(`${message}`) : toast.error(`Error: ${message}`);
 
       if (success) {
         resetForm();
@@ -276,8 +266,7 @@ export default function MediaMasterPage() {
           });
         })
         .catch(() => toast.error("Error fetching media data"));
-    }
-    else{
+    } else {
       setTitle("Add media category");
     }
   }, [id, reset]);
@@ -292,7 +281,7 @@ export default function MediaMasterPage() {
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-4 relative">
               <Label>
-                Media Type<span className="text-red-500">*</span>
+                Media Type <span className="text-red-500">*</span>
               </Label>
               <ControlledSelect
                 name="media_category"
@@ -304,7 +293,7 @@ export default function MediaMasterPage() {
             </div>
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Category Name (English)<span className="text-red-500">*</span>
+                Category Name (English) <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="name_english"
@@ -317,7 +306,7 @@ export default function MediaMasterPage() {
             </div>
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Category Name (Hindi)<span className="text-red-500">*</span>
+                Category Name (Hindi) <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="name_hindi"

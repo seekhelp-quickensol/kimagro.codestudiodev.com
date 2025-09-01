@@ -1,29 +1,13 @@
 const { body, validationResult } = require("express-validator");
 
 const userValidationRules = [
-  body("first_name")
-    .trim()
-    .notEmpty()
-    .withMessage("Name is required"),
-   
+  body("first_name").trim().notEmpty().withMessage("Name is required"),
 
-  body("middle_name")
-    .trim()
-    .notEmpty()
-    .withMessage("Name is required"),
-    
+  body("middle_name").trim().notEmpty().withMessage("Name is required"),
 
-  body("last_name")
-    .trim()
-    .notEmpty()
-    .withMessage("Name is required"),
-   
+  body("last_name").trim().notEmpty().withMessage("Name is required"),
 
-  body("username")
-    .trim()
-    .notEmpty()
-    .withMessage("Name is required"),
-  
+  body("username").trim().notEmpty().withMessage("Name is required"),
 
   body("department_id")
     .notEmpty()
@@ -91,14 +75,14 @@ const mediaMasterValidationRules = [
     .trim()
     .notEmpty()
     .withMessage("Name in english is required")
-    .isLength({  max: 200 })
+    .isLength({ max: 200 })
     .withMessage("Name in english must 200 characters"),
 
   body("name_hindi")
     .trim()
     .notEmpty()
     .withMessage("Name in hindi is required")
-    .isLength({  max: 200 })
+    .isLength({ max: 200 })
     .withMessage("Name in hindi must be 200 characters")
     .matches(
       /^[\u0900-\u097F\u0966-\u096F\s!@#\$%\^&\*\(\)\-_\+=\.,\?\"\'\(\)]+$/
@@ -111,14 +95,14 @@ const bannerValidationRules = [
     .trim()
     .notEmpty()
     .withMessage("Title in english is required")
-    .isLength({  max: 200 })
+    .isLength({ max: 200 })
     .withMessage("Title in english must be  200 characters"),
 
   body("title_hindi")
     .trim()
     .notEmpty()
     .withMessage("Title in hindi is required")
-    .isLength({  max: 200 })
+    .isLength({ max: 200 })
     .withMessage("Title in hindi must  200 characters")
     .matches(/^[\u0900-\u097F\u0966-\u096F\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/)
     .withMessage("Only Hindi characters and digits are allowed"),
@@ -131,14 +115,14 @@ const bannerValidationRules = [
     .trim()
     .notEmpty()
     .withMessage("Sub-title in english is required")
-    .isLength({  max: 200 })
+    .isLength({ max: 200 })
     .withMessage("Sub-title in english must  200 characters"),
 
   body("sub_title_hindi")
     .trim()
     .notEmpty()
     .withMessage("Sub-title in hindi is required")
-    .isLength({  max: 200 })
+    .isLength({ max: 200 })
     .withMessage("Sub-title in hindi must  200 characters")
     .matches(/^[\u0900-\u097F\u0966-\u096F\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/)
     .withMessage("Only Hindi characters and digits are allowed"),
@@ -147,7 +131,7 @@ const bannerValidationRules = [
     .trim()
     .notEmpty()
     .withMessage("Description in english is required")
-    .isLength({  max: 1000 })
+    .isLength({ max: 1000 })
     .withMessage("Description in english must  1000 characters"),
 
   body("descr_hindi")
@@ -169,10 +153,8 @@ const productValidationRules = [
     .trim()
     .notEmpty()
     .withMessage("Product name in english is required")
-    .isLength({  max: 200 })
-    .withMessage(
-      "Product name in english must be 200 characters"
-    ),
+    .isLength({ max: 200 })
+    .withMessage("Product name in english must be 200 characters"),
   body("product_name_hindi")
     .trim()
     .notEmpty()
@@ -207,15 +189,13 @@ const productValidationRules = [
     .notEmpty()
     .withMessage("Product title in english is required")
     .isLength({ max: 200 })
-    .withMessage(
-      "Product title in english must be 200 characters"
-    ),
+    .withMessage("Product title in english must be 200 characters"),
 
   body("product_title_hindi")
     .trim()
     .notEmpty()
     .withMessage("Product title in hindi is required")
-    .isLength({  max: 200 })
+    .isLength({ max: 200 })
     .withMessage("Product title in hindi must be 200 characters")
     .matches(/^[\u0900-\u097F\u0966-\u096F\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/)
     .withMessage("Only hindi characters, digits are allowed"),
@@ -226,33 +206,29 @@ const productValidationRules = [
     .trim()
     .notEmpty()
     .withMessage("Short description in english is required")
-    .isLength({  max: 1000 })
-    .withMessage(
-      "Short description in english must be 1000 characters"
-    ),
+    .isLength({ max: 1000 })
+    .withMessage("Short description in english must be 1000 characters"),
 
   body("short_descr_hindi")
     .trim()
     .notEmpty()
     .withMessage("Short description in hindi is required")
-    .isLength({  max: 1000 })
-    .withMessage(
-      "Short description in hindi must be 1000 characters"
-    )
+    .isLength({ max: 1000 })
+    .withMessage("Short description in hindi must be 1000 characters")
     .matches(/^[\u0900-\u097F\u0966-\u096F\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/)
     .withMessage("Only hindi characters, digits are allowed"),
 
   body("descr_english")
     .optional()
     .isString()
-    .isLength({ max: 2000 })
-    .withMessage("Description in english must be maximum 2000 characters"),
+    // .isLength({ max: 2000 })
+    .withMessage("Description in english must string"),
 
   body("descr_hindi")
     .optional()
     .isString()
-    .isLength({ max: 2000 })
-    .withMessage("Description in Hindi must be maximum 2000 characters"),
+    // .isLength({ max: 2000 })
+    .withMessage("Description in hindi must string"),
 ];
 
 const innovationValidationRules = [
@@ -271,15 +247,13 @@ const innovationValidationRules = [
     .notEmpty()
     .withMessage("Bio balance in english is required")
     .isLength({ max: 2000 })
-    .withMessage(
-      "Bio balanace in english must be 2000 characters"
-    ),
+    .withMessage("Bio balanace in english must be 2000 characters"),
 
   body("bio_balance_hindi")
     .trim()
     .notEmpty()
     .withMessage("Bio balanace in hindi is required")
-    .isLength({  max: 2000 })
+    .isLength({ max: 2000 })
     .withMessage("Bio balanace in hindi must be 2000 characters")
     .matches(/^[\u0900-\u097F\u0966-\u096F\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/)
     .withMessage("Only hindi characters, digits are allowed"),
@@ -287,13 +261,13 @@ const innovationValidationRules = [
   body("descr_english")
     .optional()
     .isString()
-    .isLength({ max: 2000})
+    .isLength({ max: 2000 })
     .withMessage("Description in english must be 2000 characters"),
 
   body("descr_hindi")
     .optional()
     .isString()
-    .isLength({ min: 1})
+    .isLength({ min: 1 })
     .withMessage("Description in Hindi must be at least 1 characters"),
 ];
 
@@ -302,7 +276,7 @@ const mediaModuleValidationRules = [
   body("media_category_id")
     .trim()
     .notEmpty()
-    .withMessage("Media Category is required"),
+    .withMessage("Media category is required"),
 
   // body("upload_photo").custom((value, { req }) => {
   //   if (
@@ -361,11 +335,7 @@ const designationValidationRules = [
 ];
 
 const contactValiationRules = [
-  body("name")
-    .trim()
-    .notEmpty()
-    .withMessage("Name is required"),
-   
+  body("name").trim().notEmpty().withMessage("Name is required"),
 
   body("mobile")
     .trim()

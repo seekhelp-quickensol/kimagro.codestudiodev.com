@@ -263,7 +263,7 @@ const UserList: React.FC = () => {
           </select>
         </div>
         <div className="w-full md:w-1/3">
-          <Label>Departmart Name</Label>
+          <Label>Search by Username</Label>
           <input
             type="text"
             placeholder="Search by Username..."

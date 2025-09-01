@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const authModel = require("../../models/authModel");
 const bcrypt = require("bcryptjs");
 
@@ -193,7 +193,6 @@ const getAjaxUser = async (req, res) => {
     const length = parseInt(req.body.length) || 10;
     const order = req.body.order || [];
     const searchValue = req.body.search?.value || "";
-    // const filteredStatus = req.query?.status || "all";
     const filteredDepart = req.query?.department_id || "all";
     const filteredName = req.query?.name || "";
     const fulteredUserName = req.query?.username || "";
@@ -214,74 +213,82 @@ const getAjaxUser = async (req, res) => {
 
     const sortField = columns[colIndex] || "id";
 
-    const whereClause = searchValue
-      ? {
-        [Op.or]: [
-          { first_name: { [Op.like]: `%${searchValue}%` } },
-          { middle_name: { [Op.like]: `%${searchValue}%` } },
-          { last_name: { [Op.like]: `%${searchValue}%` } },
-          { username: { [Op.like]: `%${searchValue}%` } },
-          { email: { [Op.like]: `%${searchValue}%` } },
-        ],
-      }
-      : {};
+    const whereClause = {
+      is_deleted: "0",
+    };
+
+    const orConditions = [];
+
+    if (searchValue) {
+      orConditions.push(
+        { first_name: { [Op.like]: `%${searchValue}%` } },
+        { middle_name: { [Op.like]: `%${searchValue}%` } },
+        { last_name: { [Op.like]: `%${searchValue}%` } },
+        { username: { [Op.like]: `%${searchValue}%` } },
+        { email: { [Op.like]: `%${searchValue}%` } },
+        Sequelize.where(Sequelize.literal("`department`.`department_name`"), {
+          [Op.like]: `%${searchValue}%`,
+        }),
+        Sequelize.where(Sequelize.literal("`designation`.`designation_name`"), {
+          [Op.like]: `%${searchValue}%`,
+        })
+      );
+    }
 
     if (filteredName !== "") {
-      whereClause[Op.or] = [
+      orConditions.push(
         { first_name: { [Op.like]: `%${filteredName}%` } },
         { middle_name: { [Op.like]: `%${filteredName}%` } },
-        { last_name: { [Op.like]: `%${filteredName}%` } },
-      ];
+        { last_name: { [Op.like]: `%${filteredName}%` } }
+      );
     }
 
     if (fulteredUserName !== "") {
-      whereClause[Op.or] = [
-        { username: { [Op.like]: `%${fulteredUserName}%` } },
-       
-      ];
+      orConditions.push({ username: { [Op.like]: `%${fulteredUserName}%` } });
+    }
+
+    if (orConditions.length > 0) {
+      whereClause[Op.or] = orConditions;
     }
 
     if (filteredDepart !== "all") {
       whereClause.department_id = filteredDepart;
     }
 
+    // Reusable include blocks
+    const includeDepartment = {
+      model: departmentModel,
+      as: "department",
+      attributes: ["department_name"],
+      where: { is_deleted: "0" },
+      required: false,
+    };
+
+    const includeDesignation = {
+      model: designationModel,
+      as: "designation",
+      attributes: ["designation_name"],
+      where: { is_deleted: "0" },
+      required: false,
+    };
+
     const total = await authModel.count({ where: { is_deleted: "0" } });
 
-    // Filtered records
     const filtered = await authModel.count({
-      where: {
-        ...whereClause,
-        is_deleted: "0",
-      },
+      where: whereClause,
+      include: [includeDepartment, includeDesignation],
+      distinct: true,
+      col: "id",
     });
 
     const users = await authModel.findAll({
-      where: {
-        ...whereClause,
-        is_deleted: "0",
-      },
+      where: whereClause,
       order: [[sortField, dir]],
       offset: start,
       limit: length,
-      include: [
-        {
-          model: departmentModel,
-          as: "department",
-          attributes: ["department_name"],
-          where: { is_deleted: "0" },
-          required: false, // Ensures that only users with a valid department are returned
-        },
-        {
-          model: designationModel,
-          attributes: ["designation_name"],
-          as: "designation", // 👈 required alias
-          where: { is_deleted: "0" }, // Ensure we only fetch non-deleted designations
-          required: false, // Ensures that only users with a valid designation are returned
-        },
-      ],
+      include: [includeDepartment, includeDesignation],
     });
 
-    // Format data for DataTables
     const data = users.map((user, i) => [
       i + 1 + start,
       user.id,
@@ -306,6 +313,7 @@ const getAjaxUser = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 module.exports = {
   addUser,

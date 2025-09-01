@@ -50,9 +50,9 @@ export default function MediaMasterForm() {
   const [title, setTitle] = useState("Add media category");
 
   const typeOptions = [
-    { value: "photos", label: "photos" },
-    { value: "videos", label: "videos" },
-    { value: "news", label: "news" },
+    { value: "photos", label: "Photos" },
+    { value: "videos", label: "Videos" },
+    { value: "news", label: "News" },
   ];
 
   const [selectedMediaType, setselectedMediaType] = useState("");
@@ -138,7 +138,7 @@ export default function MediaMasterForm() {
       }
 
       if (data.upload_thumbnail?.length && data.upload_thumbnail.length > 0) {
-        formData.append("upload_photo", data.upload_thumbnail[0]);
+        formData.append("upload_thumbnail", data.upload_thumbnail[0]);
       }
 
       if (data.upload_video?.length && data.upload_video.length > 0) {
@@ -244,6 +244,17 @@ export default function MediaMasterForm() {
             setValue("descr_english", contents);
           },
         },
+        dialogsInBody: true,
+          toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+     ['view', ['codeview']]
+            
+          ]
       });
     }
 
@@ -255,6 +266,17 @@ export default function MediaMasterForm() {
             setValue("descr_hindi", contents);
           },
         },
+        dialogsInBody: true,
+          toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+     ['view', ['codeview']]
+            
+          ]
       });
     }
   });
@@ -269,7 +291,7 @@ export default function MediaMasterForm() {
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Select Media Type<span className="text-red-500">*</span>
+              Select Media Type <span className="text-red-500">*</span>
             </Label>
             <select
               id="media_type"
@@ -311,7 +333,7 @@ export default function MediaMasterForm() {
 
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Select Media Category (English)
+              Select Media Category (English){" "}
               <span className="text-red-500">*</span>
             </Label>
             <select
@@ -347,8 +369,11 @@ export default function MediaMasterForm() {
             <>
               <div className="col-span-12 md:col-span-6">
                 <Label>
-                  Upload Photo (85 × 94 Px)
-                  {!isEdit && <span className="text-red-500">*</span>}
+                  Upload Photo <span className="text-red-500">*</span>{" "}
+                  <span className="text-red-500">
+                    ( Recommended : PNG, JPEG, JPG | 100 × 100 px )
+                  </span>
+                  {!isEdit}
                   {imagePreview && (
                     <Link
                       to={imagePreview}
@@ -363,7 +388,7 @@ export default function MediaMasterForm() {
 
                 <input
                   type="file"
-                  accept=".png,.jpg,.jpeg,.svg"
+                  accept=".png,.jpg,.jpeg"
                   className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
                   placeholder="choose file"
                   id="upload_photo"
@@ -381,8 +406,11 @@ export default function MediaMasterForm() {
             <>
               <div className="col-span-12 md:col-span-6">
                 <Label>
-                  Upload Video (Video Ratio 1920×1080 Px)
-                  {!isEdit && <span className="text-red-500">*</span>}
+                  Upload Video <span className="text-red-500">*</span>{" "}
+                  <span className="text-red-500">
+                    ( Recommended : MP4 | 1920 × 1080 px )
+                  </span>
+                  {!isEdit}
                   {videoPreview && (
                     <Link
                       to={videoPreview}
@@ -409,8 +437,11 @@ export default function MediaMasterForm() {
               </div>
               <div className="col-span-12 md:col-span-6">
                 <Label>
-                  Upload Photo (Video Ratio 1920×1080 Px)
-                  {!isEdit && <span className="text-red-500">*</span>}
+                  Upload Photo <span className="text-red-500">*</span>{" "}
+                  <span className="text-red-500">
+                    ( Recommended : PNG, JPEG, JPG | 100 × 100 px )
+                  </span>
+                  {!isEdit}
                   {thumbnailPreview && (
                     <Link
                       to={thumbnailPreview}
@@ -425,7 +456,7 @@ export default function MediaMasterForm() {
 
                 <input
                   type="file"
-                  accept=".png,.jpg,.jpeg,.svg"
+                  accept=".png,.jpg,.jpeg"
                   className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
                   placeholder="choose file"
                   id="upload_thumbnail"
@@ -443,8 +474,11 @@ export default function MediaMasterForm() {
             <>
               <div className="col-span-12 md:col-span-6">
                 <Label>
-                  Upload Photo (85 × 94 Px)
-                  {!isEdit && <span className="text-red-500">*</span>}
+                  Upload Photo <span className="text-red-500">*</span>{" "}
+                  <span className="text-red-500">
+                    ( Recommended : PNG, JPEG, JPG | 100 × 100 px )
+                  </span>
+                  {!isEdit}
                   {imagePreview && (
                     <Link
                       to={imagePreview}
@@ -459,7 +493,7 @@ export default function MediaMasterForm() {
 
                 <input
                   type="file"
-                  accept=".png,.jpg,.jpeg,.svg"
+                  accept=".png,.jpg,.jpeg"
                   className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
                   placeholder="choose file"
                   id="upload_photo"
@@ -473,8 +507,11 @@ export default function MediaMasterForm() {
 
               <div className="col-span-12 md:col-span-6">
                 <Label>
-                  Upload Video (Video Ratio 1920×1080 Px)
-                  {!isEdit && <span className="text-red-500">*</span>}
+                  Upload Video <span className="text-red-500">*</span>{" "}
+                  <span className="text-red-500">
+                    ( Recommended : MP4 | 1920 × 1080 px )
+                  </span>
+                  {!isEdit}
                   {videoPreview && (
                     <Link
                       to={videoPreview}
@@ -502,7 +539,7 @@ export default function MediaMasterForm() {
 
               <div className="col-span-12 md:col-span-6">
                 <Label>
-                  Description (English)<span className="text-red-500">*</span>
+                  Description (English) <span className="text-red-500">*</span>
                 </Label>
                 <textarea
                   rows={4}
@@ -519,7 +556,7 @@ export default function MediaMasterForm() {
 
               <div className="col-span-12 md:col-span-6">
                 <Label>
-                  Description (Hindi)<span className="text-red-500">*</span>
+                  Description (Hindi) <span className="text-red-500">*</span>
                 </Label>
                 <textarea
                   rows={4}

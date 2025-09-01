@@ -172,6 +172,16 @@ export default function InnovationForm() {
         callbacks: {
           onChange: (contents: string) => setValue("descr_english", contents),
         },
+        dialogsInBody: true,
+        toolbar: [
+          ["style", ["style"]],
+          ["font", ["bold", "underline", "clear"]],
+          ["fontname", ["fontname"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["table", ["table"]],
+          ["insert", ["link", "picture"]],
+          ['view', ['codeview']]
+        ],
       });
     }
 
@@ -181,6 +191,16 @@ export default function InnovationForm() {
         callbacks: {
           onChange: (contents: string) => setValue("descr_hindi", contents),
         },
+        dialogsInBody: true,
+        toolbar: [
+          ["style", ["style"]],
+          ["font", ["bold", "underline", "clear"]],
+          ["fontname", ["fontname"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["table", ["table"]],
+          ["insert", ["link", "picture"]],
+          ['view', ['codeview']]
+        ],
       });
     }
   }, [setValue]);
@@ -195,8 +215,11 @@ export default function InnovationForm() {
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Upload Icon (85 × 94 Px)
-              {!isEdit && <span className="text-red-500">*</span>}
+              Upload Icon <span className="text-red-500">*</span>{" "}
+              <span className="text-red-500">
+                ( Recommended : PNG, JPEG, JPG | 126 × 204 px )
+              </span>
+              {!isEdit}
               {iconPreview && (
                 <Link
                   to={iconPreview}
@@ -211,7 +234,7 @@ export default function InnovationForm() {
 
             <input
               type="file"
-              accept=".png,.jpg,.jpeg,.svg"
+              accept=".png,.jpg,.jpeg"
               className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
               placeholder="choose file"
               id="upload_icon"
@@ -226,8 +249,11 @@ export default function InnovationForm() {
           {/* Upload Image */}
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Upload Image (85 × 94 Px)
-              {!isEdit && <span className="text-red-500">*</span>}
+              Upload Image <span className="text-red-500">*</span>{" "}
+              <span className="text-red-500">
+                ( Recommended : PNG, JPEG, JPG | 430 × 286 px )
+              </span>
+              {!isEdit}
               {imagePreview && (
                 <Link
                   to={imagePreview}
@@ -242,7 +268,7 @@ export default function InnovationForm() {
 
             <input
               type="file"
-              accept=".png,.jpg,.jpeg,.svg"
+              accept=".png,.jpg,.jpeg"
               className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
               placeholder="choose file"
               id="upload_img"
@@ -255,14 +281,13 @@ export default function InnovationForm() {
           </div>
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Bio Balance (English)
-              <span className="text-red-500">*</span>
+              Bio Balance (English) <span className="text-red-500">*</span>
             </Label>
             <textarea
               rows={4}
               className="w-full border border-gray-300 rounded p-2 h-22 focus:outline-none focus:ring-2 focus:ring-blue-500"
               id="bio_balance_eng"
-              placeholder="Enter Bio Balance in english"
+              placeholder="Enter bio balance in english"
               {...register("bio_balance_eng")}
             />
             {typeof errors.bio_balance_eng?.message === "string" && (
@@ -271,14 +296,13 @@ export default function InnovationForm() {
           </div>
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Bio Balance (Hindi)
-              <span className="text-red-500">*</span>
+              Bio Balance (Hindi) <span className="text-red-500">*</span>
             </Label>
             <textarea
               rows={4}
               className="w-full border border-gray-300 rounded p-2 h-22 focus:outline-none focus:ring-2 focus:ring-blue-500"
               id="bio_balance_hindi"
-              placeholder="Enter Bio Balance in english"
+              placeholder="Enter bio balance in hindi"
               {...register("bio_balance_hindi")}
             />
             {typeof errors.bio_balance_hindi?.message === "string" && (
@@ -287,7 +311,7 @@ export default function InnovationForm() {
           </div>
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Description (English)<span className="text-red-500">*</span>
+              Description (English) <span className="text-red-500">*</span>
             </Label>
             <textarea
               rows={4}
@@ -302,7 +326,7 @@ export default function InnovationForm() {
           </div>
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Description (Hindi)<span className="text-red-500">*</span>
+              Description (Hindi) <span className="text-red-500">*</span>
             </Label>
             <textarea
               rows={4}

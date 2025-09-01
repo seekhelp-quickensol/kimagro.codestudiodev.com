@@ -106,7 +106,7 @@ const AppSidebar: React.FC = () => {
 
   // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
-    (path: string) => location.pathname === path,
+    (path: string) => `/${location.pathname.split("/")[1]}` === path,
     [location.pathname]
   );
 
@@ -297,7 +297,7 @@ const AppSidebar: React.FC = () => {
             <>
               <img
                 className="dark:hidden"
-                src="./assets/images/logo/logo.svg"
+                src="../assets/images/logo/logo.svg"
                 alt="Logo"
                 width={150}
                 height={40}
@@ -351,7 +351,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots />
                 )}
               </h2>
-              <SignOutButton />
+              <SignOutButton isExpanded = {isExpanded} />
             </div>
           </div>
         </nav>

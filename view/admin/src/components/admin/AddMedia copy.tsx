@@ -228,6 +228,17 @@ export default function MediaMasterForm() {
             setValue("descr_english", contents);
           },
         },
+        dialogsInBody: true,
+          toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+     ['view', ['codeview']]
+            
+          ]
       });
     }
 
@@ -239,6 +250,17 @@ export default function MediaMasterForm() {
             setValue("descr_hindi", contents);
           },
         },
+        dialogsInBody: true,
+          toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+     ['view', ['codeview']]
+            
+          ]
       });
     }
   });

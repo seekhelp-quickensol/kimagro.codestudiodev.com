@@ -871,6 +871,9 @@ textarea::placeholder {
 .css-t3ipsp-control {
   box-shadow: none !important;
 }
+div:where(.swal2-container) h2:where(.swal2-title){
+  font-size: 1.7em !important;
+}
 .taginput .css-13cymwt-control {
   min-height: 45px;
   border-radius: 8px;

@@ -34,17 +34,19 @@ const categorySchema = (
   Yup.object({
     title_english: Yup.string()
       .required("Title in english is required")
-
       .max(200, "Title in english cannot exceed 200 characters")
       .matches(/^[^\d]*$/, "Title in english should not contain any digits")
-      .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
+      .matches(
+        /^[A-Za-z\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/,
+        "Only english characters are allowed"
+      )
+
       .test("no-leading-space", "First letter cannot be a space", (value) =>
         value ? value[0] !== " " : true
       ),
 
     title_hindi: Yup.string()
       .required("Title in hindi is required")
-
       .max(200, "Title in hindi cannot exceed 200 characters")
       .matches(
         /^[\u0900-\u097F\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/u,
@@ -103,11 +105,10 @@ interface MediaFormValues {
 }
 
 const mediaSchema: Yup.ObjectSchema<MediaFormValues> = Yup.object({
-  media_category: Yup.string().required("Media Category is required"),
+  media_category: Yup.string().required("Media category is required"),
 
   name_english: Yup.string()
-    .required("Category (English) is required")
-
+    .required("Category in english is required")
     .max(200, "Category in english cannot exceed 200 characters")
     .test(
       "no-digits",
@@ -117,45 +118,22 @@ const mediaSchema: Yup.ObjectSchema<MediaFormValues> = Yup.object({
         return !/\p{Nd}/u.test(value);
       }
     )
-    .test(
-      "no-special-characters",
-      "Special characters are not allowed",
-      (value) => {
-        if (!value) return true;
-        return /^[A-Za-z\u0900-\u097F\s0-9]*$/.test(value);
-      }
-    )
-    .test(
-      "only-english-letters-spaces",
-      "Only english letters are allowed",
-      (value) => {
-        if (!value) return true;
-        return /^[A-Za-z\s]*$/.test(value);
-      }
-    )
+    .matches(/^[A-Za-z\s\-&()'",.]*$/, "Only english characters are allowed")
     .test("no-leading-space", "First letter cannot be a space", (value) =>
       value ? value[0] !== " " : true
     ),
+
   name_hindi: Yup.string()
-    .required("Category (Hindi) is required")
+    .required("Category in hindi is required")
     .max(200, "Category in hindi cannot exceed 200 characters")
     .test(
       "no-digits",
       "Category in hindi should not contain any digits",
       (value) => !value || !/[0-9\u0966-\u096F\u0A6F]/.test(value)
     )
-    .test(
-      "no-english-characters",
-      "Only hindi characters are allowed",
-      (value) => !value || !/[A-Za-z]/.test(value)
-    )
-    .test(
-      "no-special-characters",
-      "Special characters are not allowed",
-      (value) => {
-        if (!value) return true;
-        return /^[\u0900-\u097F\s]+$/u.test(value);
-      }
+    .matches(
+      /^[\u0900-\u097F\s\-&()'",.]*$/,
+      "Only hindi characters are allowed"
     )
     .test("no-leading-space", "First letter cannot be a space", (value) =>
       value ? value[0] !== " " : true
@@ -232,13 +210,13 @@ const bannerSchema = (isEdit: boolean): Yup.ObjectSchema<BannerFormValues> =>
       ),
 
     descr_english: Yup.string()
-      .required("Description (English) is required")
+      .required("Description in english is required")
       .test("no-leading-space", "First letter cannot be a space", (value) =>
         value ? value[0] !== " " : true
       ),
 
     descr_hindi: Yup.string()
-      .required("Description (Hindi) is required")
+      .required("Description in hindi is required")
       .matches(
         /^[\u0900-\u097F\u0966-\u096F\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/,
         "Only Hindi characters and digits are allowed"
@@ -264,6 +242,15 @@ const bannerSchema = (isEdit: boolean): Yup.ObjectSchema<BannerFormValues> =>
                 "video/quicktime",
                 "video/x-msvideo",
               ].includes(fileType);
+            }
+          )
+          .test(
+            "fileSize",
+            "File size must be 10 MB or less",
+            (value: FileList | null): boolean => {
+              if (!value || value.length === 0) return false;
+              const maxSize = 10 * 1024 * 1024;
+              return value[0]?.size <= maxSize;
             }
           )
           .nullable()
@@ -435,26 +422,25 @@ const productSchema = (isEdit: boolean): Yup.ObjectSchema<ProductFormValues> =>
     // sku_id: Yup.string().required("SKU is required"),
 
     short_descr_english: Yup.string()
-      .trim()
       .required("Short description in english is required")
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? !value.startsWith(" ") : true
+      )
       .matches(
         /^[A-Za-z0-9!@#$%^&*()\-_=+{}[\]:;"'<>,.?/\\|`~\s]+$/,
         "Only english characters are allowed"
-      )
-      .test("no-leading-space", "First letter cannot be a space", (value) =>
-        value ? value[0] !== " " : true
       ),
 
     short_descr_hindi: Yup.string()
-      .trim()
       .required("Short description in hindi is required")
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? !value.startsWith(" ") : true
+      )
       .matches(
         /^[\u0900-\u097F\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/u,
         "Only hindi characters are allowed"
-      )
-      .test("no-leading-space", "First letter cannot be a space", (value) =>
-        value ? value[0] !== " " : true
       ),
+
     product_img: isEdit
       ? Yup.mixed<FileList>()
           .nullable()
@@ -540,11 +526,12 @@ const productSchema = (isEdit: boolean): Yup.ObjectSchema<ProductFormValues> =>
           .nullable()
           .transform((value) => (value === undefined ? null : value)),
     descr_english: Yup.string()
-      .trim()
-      .required("Description in english is required"),
+      .required("Description in english is required")
+       ,
+
     descr_hindi: Yup.string()
-      .trim()
-      .required("Description in hindi is required"),
+      .required("Description in hindi is required")
+       ,
   });
 
 interface innovationValues {
@@ -608,9 +595,10 @@ const innovationSchema = (
       .trim()
       .required("Short description in hindi is required")
       .matches(
-        /^[\u0900-\u097F\u0966-\u096F\s!@#\$%\^&\*\(\)\-_\+=\.,\?]+$/,
+        /^[\u0900-\u097F\u0966-\u096F\s.,:;()\[\]\-–—"'"‘’“”]+$/,
         "Only hindi characters are allowed"
       ),
+
     descr_english: Yup.string()
       .trim()
       .required("Description in english is required"),
@@ -624,7 +612,7 @@ interface mediaModuleValues {
   media_category_id: string;
   upload_photo: FileList | null | undefined;
   upload_video: FileList | null | undefined;
-  upload_thumbnail : FileList | null | undefined;
+  upload_thumbnail: FileList | null | undefined;
   descr_english?: string | null;
   descr_hindi?: string | null;
 }
@@ -657,7 +645,7 @@ const mediaModuleSchema = (
   Yup.object({
     media_type: Yup.string().required("Media type is required"),
 
-    media_category_id: Yup.string().required("Media Category is required"),
+    media_category_id: Yup.string().required("Media category is required"),
 
     upload_photo: Yup.mixed<FileList>().when("media_type", {
       is: (media_type: string) =>
@@ -695,8 +683,7 @@ const mediaModuleSchema = (
     }),
 
     upload_thumbnail: Yup.mixed<FileList>().when("media_type", {
-      is: (media_type: string) =>
-        (media_type === "videos" ) && !isEdit,
+      is: (media_type: string) => media_type === "videos" && !isEdit,
       then: (schema) =>
         schema
           .required("Photo is required")
@@ -749,7 +736,12 @@ const mediaModuleSchema = (
                 "video/x-msvideo",
               ].includes(value[0]?.type);
             }
-          ),
+          )
+          .test("fileSize", "File size must be 10 MB or less", (value) => {
+            if (!value || value.length === 0) return false;
+            const maxSize = 10 * 1024 * 1024;
+            return value[0]?.size <= maxSize;
+          }),
       otherwise: (schema) =>
         schema
           .notRequired()
@@ -765,18 +757,23 @@ const mediaModuleSchema = (
                 "video/x-msvideo",
               ].includes(value[0]?.type);
             }
-          ),
+          )
+          .test("fileSize", "File size must be 10 MB or less", (value) => {
+            if (!value || value.length === 0) return true;
+            const maxSize = 10 * 1024 * 1024;
+            return value[0]?.size <= maxSize;
+          }),
     }),
 
     descr_english: Yup.string().when("media_type", {
       is: "news",
-      then: (schema) => schema.required("English description is required"),
+      then: (schema) => schema.required("Description in english is required"),
       otherwise: (schema) => schema.notRequired().nullable(),
     }),
 
     descr_hindi: Yup.string().when("media_type", {
       is: "news",
-      then: (schema) => schema.required("Hindi description is required"),
+      then: (schema) => schema.required("Description in hindi is required"),
       otherwise: (schema) => schema.notRequired().nullable(),
     }),
   });
@@ -817,11 +814,14 @@ const userSchema = Yup.object().shape({
   department_id: Yup.number().required("Department is required"),
   designation_id: Yup.number().required("Designation is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
-  username: Yup.string().required("Username is required"),
+  username: Yup.string()
+    .required("Username is required")
+    .test("no-leading-space", "First letter cannot be a space", (value) =>
+      value ? value[0] !== " " : true
+    ),
   password: Yup.string()
     .required("Password is required")
     .min(6, "Password must be at least 6 characters")
-    .max(30, "Password cannot exceed 30 characters")
     .test(
       "no-hindi-characters",
       "Only english characters are allowed",

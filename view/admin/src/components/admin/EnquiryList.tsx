@@ -36,7 +36,7 @@ Safety guidelines for storage and application.
 
 हमारी खेती लगभग 50 एकड़ में होती है और हम चाहते हैं कि उत्पाद मिट्टी की गुणवत्ता को खराब न करें और कीटों से पूरी तरह सुरक्षा दें। कृपया हमें यह भी बताएं कि क्या आपके पास सरकारी प्रमाणपत्र और गुणवत्ता जांच रिपोर्ट उपलब्ध है।
 
-    Kindly reply at the earliest so that we can finalize our procurement plan..`
+    Kindly reply at the earliest so that we can finalize our procurement plan..`,
   },
   {
     id: 2,
@@ -53,7 +53,11 @@ export default function EnquiryTable() {
   const [filterText, setFilterText] = useState("");
   const [selectedItem, setSelectedItem] = useState<Enquiry | null>(null);
 
-  const { isOpen: isMessageOpen, openModal: openMessageModal, closeModal: closeMessageModal } = useModal();
+  const {
+    isOpen: isMessageOpen,
+    openModal: openMessageModal,
+    closeModal: closeMessageModal,
+  } = useModal();
 
   const filteredData = enquiryData.filter(
     (item) =>
@@ -68,35 +72,30 @@ export default function EnquiryTable() {
     {
       name: "Sr. No.",
       cell: (_row: Enquiry, index: number) => index + 1,
-   
+
       width: "80px",
     },
     {
       name: "Name",
       selector: (row: Enquiry) => row.name,
       sortable: true,
-   
     },
     {
       name: "Email",
       selector: (row: Enquiry) => row.email,
       sortable: true,
-    
     },
     {
       name: "Mobile No",
       selector: (row: Enquiry) => row.mobile,
-      
     },
     {
       name: "Company Name",
       selector: (row: Enquiry) => row.company,
-    
     },
     {
       name: "Title",
       selector: (row: Enquiry) => row.title,
-    
     },
     {
       name: "Message",
@@ -106,12 +105,10 @@ export default function EnquiryTable() {
           onClick={() => {
             setSelectedItem(row);
             openMessageModal();
-          }}
-        >
+          }}>
           View
         </button>
       ),
-   
     },
     {
       name: "Action",
@@ -125,7 +122,6 @@ export default function EnquiryTable() {
           </button>
         </div>
       ),
-     
     },
   ];
 
@@ -157,11 +153,12 @@ export default function EnquiryTable() {
           <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">Enquiry Message</h2>
 
-            <div className="mb-4"><strong>Message:</strong> {selectedItem.message}</div>
+            <div className="mb-4">
+              <strong>Message:</strong> {selectedItem.message}
+            </div>
             <button
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              onClick={closeMessageModal}
-            >
+              onClick={closeMessageModal}>
               Close
             </button>
           </div>

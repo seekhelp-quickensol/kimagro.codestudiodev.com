@@ -860,6 +860,7 @@ font-size: 11px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
 }
 .category-card img {
   margin-bottom: 8px;
@@ -881,7 +882,9 @@ nav a{
 /* Desktop View */
  
 @media (min-width: 768px) {
-
+  .thumbslider .slick-track{
+    justify-content: start;
+  }
   .hero-section {
     height: 80vh;
   }
@@ -893,6 +896,12 @@ nav a{
   }
   .categories-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width:768px){
+  .thumbslider .slick-track{
+    justify-content: center;
   }
 }
 

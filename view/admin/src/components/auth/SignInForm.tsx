@@ -103,7 +103,7 @@ export default function SignInForm() {
                     }>
                     {passwordVisible ? (
                       <EyeIcon className="size-5 fill-gray-500 dark:fill-gray-400" />
-                    ) : (
+                    ) : ( 
                       <EyeCloseIcon className="size-5 fill-gray-500 dark:fill-gray-400" />
                     )}
                   </button>
@@ -117,7 +117,7 @@ export default function SignInForm() {
 
               <div>
                 <Button className="w-full btn-sign-in" size="sm">
-                  Sign in
+                  Sign In
                 </Button>
               </div>
             </div>

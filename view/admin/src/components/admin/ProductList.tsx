@@ -185,7 +185,7 @@ const ProductList: React.FC = () => {
       selector: (row: ProductCol) => row[7],
     },
     {
-      name: "SKU",
+      name: "SKU Unit",
       selector: (row: ProductCol) => row[9],
     },
 

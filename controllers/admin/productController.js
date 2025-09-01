@@ -83,8 +83,6 @@ const getProductById = async (req, res) => {
   }
 };
 
-
-
 const createProudct = async (req, res) => {
   try {
     const files = req.files || {};
@@ -119,11 +117,84 @@ const createProudct = async (req, res) => {
   }
 };
 
+// const updateProduct = async (req, res) => {
+//   const { id } = req.params;
+//   const files = req.files || {};
+
+//   try {
+//     const updatedData = {
+//       ...req.body,
+//       ...(files.product_img?.[0] && {
+//         product_img: files.product_img[0].filename,
+//       }),
+//       ...(files.upload_brouch_english?.[0] && {
+//         upload_brouch_english: files.upload_brouch_english[0].filename,
+//       }),
+//       ...(files.upload_brouch_hindi?.[0] && {
+//         upload_brouch_hindi: files.upload_brouch_hindi[0].filename,
+//       }),
+//       ...(files.upload_multiple_img?.length && {
+//         upload_multiple_img: files.upload_multiple_img.map((f) => f.filename),
+//       }),
+//     };
+
+//     const [updated] = await productModel.update(updatedData, {
+//       where: { id },
+//     });
+
+//     if (updated === 0) {
+//       return res.status(200).json({
+//         success: true,
+//         message: "Record updated successfully",
+//         data: null,
+//       });
+//     }
+
+//     const updatedSKU = await productModel.findByPk(id);
+//     res.status(200).json({
+//       success: true,
+//       message: "Record updated successfully",
+//       data: updatedSKU,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Error updating record",
+//       data: null,
+//       error: error,
+//     });
+//   }
+// };
+
 const updateProduct = async (req, res) => {
   const { id } = req.params;
   const files = req.files || {};
 
   try {
+    const existingProduct = await productModel.findByPk(id);
+
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    let existingImages = existingProduct.upload_multiple_img || [];
+
+    if (typeof existingImages === "string") {
+      existingImages = existingImages
+        .split(",")
+        .map((img) => img.trim())
+        .filter(Boolean);
+    }
+    let newImages = [];
+    if (files.upload_multiple_img?.length) {
+      newImages = files.upload_multiple_img.map((f) => f.filename);
+    }
+
+    const combinedImages = [...existingImages, ...newImages];
+
     const updatedData = {
       ...req.body,
       ...(files.product_img?.[0] && {
@@ -135,9 +206,7 @@ const updateProduct = async (req, res) => {
       ...(files.upload_brouch_hindi?.[0] && {
         upload_brouch_hindi: files.upload_brouch_hindi[0].filename,
       }),
-      ...(files.upload_multiple_img?.length && {
-        upload_multiple_img: files.upload_multiple_img.map((f) => f.filename),
-      }),
+      upload_multiple_img: combinedImages,
     };
 
     const [updated] = await productModel.update(updatedData, {
@@ -152,11 +221,11 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    const updatedSKU = await productModel.findByPk(id);
+    const updatedProduct = await productModel.findByPk(id);
     res.status(200).json({
       success: true,
       message: "Record updated successfully",
-      data: updatedSKU,
+      data: updatedProduct,
     });
   } catch (error) {
     res.status(500).json({
@@ -372,7 +441,7 @@ const getProductDetails = async (req, res) => {
       });
     }
     const skuIds = Array.isArray(product.sku_id)
-      ? product.sku_id.map(id => parseInt(id.trim()))
+      ? product.sku_id.map((id) => parseInt(id.trim()))
       : [];
     let skus = [];
     if (skuIds.length > 0) {

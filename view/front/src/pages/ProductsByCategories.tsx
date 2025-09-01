@@ -60,7 +60,8 @@ export default function ProductsByCategories() {
               ))
             ) : !loading && (
               <div className="justify-center justify-self-center mx-auto col-span-full">
-                <p className="text-gray-500">{t("productPage.noProduct")}</p>
+                {/* <p className="text-gray-500">{t("productPage.noProduct")}</p> */}
+                <img src={'../assets/images/noproduct.png'} alt={t("productPage.noProduct")} className="object-contain" />
               </div>
             )}
           </div>

@@ -72,7 +72,7 @@ export default function ProductForm() {
   const navigate = useNavigate();
 
   const { id } = useParams();
-  const [title,setTitle] = useState<string>("Add Product");
+  const [title, setTitle] = useState<string>("Add Product");
 
   const [loading, setLoading] = useState(false);
 
@@ -225,9 +225,7 @@ export default function ProductForm() {
       const response = await submitProductForm(id ?? null, formData, method);
       const { success, message } = response.data;
 
-      success
-        ? toast.success(`${message}`)
-        : toast.error(`Error: ${message}`);
+      success ? toast.success(`${message}`) : toast.error(`Error: ${message}`);
 
       if (success) {
         resetForm();
@@ -280,15 +278,15 @@ export default function ProductForm() {
             product_name_hindi: data.product_name_hindi,
             product_tag_english: Array.isArray(data.product_tag_english)
               ? data.product_tag_english.map((tag: string) => ({
-                  value: tag,
-                  label: tag,
-                }))
+                value: tag,
+                label: tag,
+              }))
               : [],
             product_tag_hindi: Array.isArray(data.product_tag_hindi)
               ? data.product_tag_hindi.map((tag: string) => ({
-                  value: tag,
-                  label: tag,
-                }))
+                value: tag,
+                label: tag,
+              }))
               : [],
             product_title_english: data.product_title_english,
             product_title_hindi: data.product_title_hindi,
@@ -304,24 +302,20 @@ export default function ProductForm() {
             $("#descr_hindi").summernote("code", data.descr_hindi || "");
           }, 200);
           setImagePreview(
-            `${import.meta.env.VITE_APP_API_URL}/uploads/images/${
-              data.product_img
+            `${import.meta.env.VITE_APP_API_URL}/uploads/images/${data.product_img
             }`
           );
           setEnBrouchPreview(
-            `${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${
-              data.upload_brouch_english
+            `${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${data.upload_brouch_english
             }`
           );
           setHiBrouchPreview(
-            `${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${
-              data.upload_brouch_hindi
+            `${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${data.upload_brouch_hindi
             }`
           );
         })
         .catch(() => toast.error("Error fetching product data"));
-    }
-    else{
+    } else {
       setTitle("Add Product");
     }
   }, [id, reset]);
@@ -335,6 +329,17 @@ export default function ProductForm() {
             setValue("descr_english", contents);
           },
         },
+        dialogsInBody: true,
+        toolbar: [
+          ['style', ['style']],
+          ['font', ['bold', 'underline', 'clear']],
+          ['fontname', ['fontname']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['table', ['table']],
+          ['insert', ['link', 'picture']],
+          ['view', ['codeview']]
+
+        ]
       });
     }
 
@@ -346,11 +351,20 @@ export default function ProductForm() {
             setValue("descr_hindi", contents);
           },
         },
+        dialogsInBody: true,
+        toolbar: [
+          ['style', ['style']],
+          ['font', ['bold', 'underline', 'clear']],
+          ['fontname', ['fontname']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['table', ['table']],
+          ['insert', ['link', 'picture']],
+          ['view', ['codeview']]
+
+        ]
       });
     }
   }, [setValue]);
-
-  
 
   return (
     <ComponentCard title={title}>
@@ -362,7 +376,7 @@ export default function ProductForm() {
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 md:col-span-4">
             <Label>
-              Product Category<span className="text-red-500">*</span>
+              Product Category <span className="text-red-500">*</span>
             </Label>
 
             <select
@@ -397,7 +411,7 @@ export default function ProductForm() {
           {/* Product Name */}
           <div className="col-span-12 md:col-span-4">
             <Label>
-              Product Name (English)<span className="text-red-500">*</span>
+              Product Name (English) <span className="text-red-500">*</span>
             </Label>
             <NewInput
               name="product_name_english"
@@ -411,7 +425,7 @@ export default function ProductForm() {
 
           <div className="col-span-12 md:col-span-4">
             <Label>
-              Product Name (Hindi)<span className="text-red-500">*</span>
+              Product Name (Hindi) <span className="text-red-500">*</span>
             </Label>
             <NewInput
               name="product_name_hindi"
@@ -424,8 +438,12 @@ export default function ProductForm() {
           </div>
 
           <div className="col-span-12 md:col-span-4 taginput">
-            <Label>Product Tag (English)</Label>
-            <TagInput name="product_tag_english" control={control} />
+            <Label>Product Tag (English) </Label>
+            <TagInput
+              name="product_tag_english"
+              placeholder="Enter product tag in english"
+              control={control}
+            />
             {/* <NewInput
               name="product_tag_english"
               type="text"
@@ -437,8 +455,12 @@ export default function ProductForm() {
           </div>
 
           <div className="col-span-12 md:col-span-4 taginput">
-            <Label>Product Tag (Hindi)</Label>
-            <TagInput name="product_tag_hindi" control={control} />
+            <Label>Product Tag (Hindi) </Label>
+            <TagInput
+              name="product_tag_hindi"
+              placeholder="Enter product tag in hindi"
+              control={control}
+            />
             {/* <NewInput
               name="product_tag_hindi"
               type="text"
@@ -452,8 +474,11 @@ export default function ProductForm() {
           {/* Product Image */}
           <div className="col-span-12 md:col-span-4">
             <Label>
-              Product Image (85 × 94 Px)
-              {!isEdit && <span className="text-red-500">*</span>}
+              Product Image <span className="text-red-500">*</span>{" "}
+              <span className="text-red-500">
+                ( Recommended : PNG, JPEG, JPG | 124 × 152 px )
+              </span>
+              {!isEdit}
               {imagePreview && (
                 <Link
                   to={imagePreview}
@@ -468,7 +493,7 @@ export default function ProductForm() {
 
             <input
               type="file"
-               accept=".png,.jpg,.jpeg,.svg"
+              accept=".png,.jpg,.jpeg"
               className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
               placeholder="choose file"
               id="product_img"
@@ -483,7 +508,7 @@ export default function ProductForm() {
           {/* Product Title */}
           <div className="col-span-12 md:col-span-4">
             <Label>
-              Product Title (English)<span className="text-red-500">*</span>
+              Product Title (English) <span className="text-red-500">*</span>
             </Label>
             <NewInput
               name="product_title_english"
@@ -497,7 +522,7 @@ export default function ProductForm() {
 
           <div className="col-span-12 md:col-span-4">
             <Label>
-              Product Title (Hindi)<span className="text-red-500">*</span>
+              Product Title (Hindi) <span className="text-red-500">*</span>
             </Label>
             <NewInput
               name="product_title_hindi"
@@ -513,7 +538,7 @@ export default function ProductForm() {
 
           <div className="col-span-12 md:col-span-4">
             <Label>
-              SKU<span className="text-red-500">*</span>
+              SKU <span className="text-red-500">*</span>
             </Label>
             <MultiSelect
               name="sku_id"
@@ -530,13 +555,15 @@ export default function ProductForm() {
           <div className="col-span-12 md:col-span-4">
             <div className="flex items-center gap-4 flex-wrap">
               <Label>
-                Upload Multiple Product Images (50 × 60 Px) <span className="text-red-500">*</span>
+                Product Multiple Images <span className="text-red-500">*</span>
+                <span className="text-red-500">
+                  ( Recommended : PNG, JPEG, JPG | 297 × 579 px )
+                </span>
                 <div className="flex gap-2 flex-wrap">
-                  {!isEdit }
+                  {!isEdit}
                   {multipleImagePreview.map((img, i) => {
-                    const imageUrl = `${
-                      import.meta.env.VITE_APP_API_URL
-                    }/uploads/images/${img}`;
+                    const imageUrl = `${import.meta.env.VITE_APP_API_URL
+                      }/uploads/images/${img}`;
                     return (
                       <Link
                         key={i}
@@ -555,7 +582,7 @@ export default function ProductForm() {
 
             <input
               type="file"
-               accept=".png,.jpg,.jpeg,.svg"
+              accept=".png,.jpg,.jpeg"
               className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
               placeholder="choose file"
               id="upload_multiple_img"
@@ -575,7 +602,7 @@ export default function ProductForm() {
           {/* Short Description (English) */}
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Short Description (English)
+              Short Description (English){" "}
               <span className="text-red-500">*</span>
             </Label>
             <textarea
@@ -593,8 +620,7 @@ export default function ProductForm() {
           {/* Short Description (Hindi) */}
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Short Description (Hindi)
-              <span className="text-red-500">*</span>
+              Short Description (Hindi) <span className="text-red-500">*</span>
             </Label>
 
             <textarea
@@ -612,8 +638,9 @@ export default function ProductForm() {
           {/* Upload Brochures */}
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Upload Brochure (English) (Max 5MB)
-              {!isEdit && <span className="text-red-500">*</span>}
+              Upload Brochure (English) <span className="text-red-500">*</span>{" "}
+              <span className="text-red-500">(Recommended : Max 5MB)</span>
+              {!isEdit}
               {enBrouchPreview && (
                 <Link
                   to={enBrouchPreview}
@@ -628,7 +655,7 @@ export default function ProductForm() {
 
             <input
               type="file"
-               accept=".mov,.pdf,.doc,.docx"
+              accept=".mov,.pdf,.doc,.docx"
               className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
               placeholder="choose file"
               id="upload_brouch_english"
@@ -642,8 +669,9 @@ export default function ProductForm() {
 
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Upload Brochure (Hindi) (Max 5MB)
-              {!isEdit && <span className="text-red-500">*</span>}
+              Upload Brochure (Hindi) <span className="text-red-500">*</span>{" "}
+              <span className="text-red-500">(Recommended : Max 5MB)</span>
+              {!isEdit}
               {hiBrouchPreview && (
                 <Link
                   to={hiBrouchPreview}
@@ -658,7 +686,7 @@ export default function ProductForm() {
 
             <input
               type="file"
-               accept=".mov,.pdf,.doc,.docx"
+              accept=".mov,.pdf,.doc,.docx"
               className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
               placeholder="choose file"
               id="upload_brouch_hindi"
@@ -673,7 +701,7 @@ export default function ProductForm() {
           {/* Descriptions with Summernote */}
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Description (English)<span className="text-red-500">*</span>
+              Description (English) <span className="text-red-500">*</span>
             </Label>
             <textarea
               rows={4}
@@ -690,7 +718,7 @@ export default function ProductForm() {
 
           <div className="col-span-12 md:col-span-6">
             <Label>
-              Description (Hindi)<span className="text-red-500">*</span>
+              Description (Hindi) <span className="text-red-500">*</span>
             </Label>
             <textarea
               rows={4}

@@ -29,6 +29,10 @@ export default function DepartmentMaster() {
     },
   });
 
+
+  
+  
+
   const {title} = useDepartmentById(reset);
 
   const onSubmit = async (data: any) => {
@@ -48,9 +52,7 @@ export default function DepartmentMaster() {
         navigator("/department-master");
         setRefresh(!refresh);
       }
-      else{
-        toast.error(`Error: ${message}`);
-      }
+    
     } catch (err) {
       let msg = "An unexpected error occurred";
 
@@ -74,7 +76,7 @@ export default function DepartmentMaster() {
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-6">
               <Label>
-                Department Name<span className="text-red-500">*</span>
+                Department Name{" "}<span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="department_name"
@@ -83,8 +85,10 @@ export default function DepartmentMaster() {
                 className="w-full"
                 register={register}
                 errors={errors}
+               
               />
             </div>
+ 
 
             <div className="col-span-12">
               <button

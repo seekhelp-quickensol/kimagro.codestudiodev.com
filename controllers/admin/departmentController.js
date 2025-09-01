@@ -6,7 +6,7 @@ const getAllDepartment = async (req, res) => {
     const adminList = await departmentModel.findAll({
       attributes: ["id", "department_name", "status"],
       where: { is_deleted: "0" },
-      order: [["created_on", "DESC"]],
+      order: [["id", "DESC"]],
     });
 
     return res.status(200).json({
@@ -146,28 +146,35 @@ const getAjaxDepartment = async (req, res) => {
   const searchValue = req.body.search?.value || "";
   const filteredStatus = req.query?.status || "all";
 
-  const colIndex = order[0]?.column || 0;
-  const dir = order[0]?.dir === "asc" ? "ASC" : "DESC";
   const columns = ["department_name", "status"];
-  const sortField = columns[colIndex] || "id";
+  const colIndex = order[0]?.column;
+  const dir = order[0]?.dir === "asc" ? "ASC" : "DESC";
+
+  const sortField =
+    typeof colIndex !== "undefined" ? columns[colIndex] || "id" : "id";
+  const sortDirection = typeof colIndex !== "undefined" ? dir : "DESC";
 
   const whereClause = searchValue
     ? {
-        [Op.or]: [{ department_name: { [Op.like]: `%${searchValue}%` } }],
+        [Op.and]: [
+          { is_deleted: "0" },
+          {
+            [Op.or]: [{ department_name: { [Op.like]: `%${searchValue}%` } }],
+          },
+        ],
       }
-    : {};
+    : { is_deleted: "0" };
 
   if (filteredStatus !== "all") {
     whereClause.status = filteredStatus;
   }
 
-  whereClause.is_deleted = "0";
-  const total = await departmentModel.count();
+  const total = await departmentModel.count({ where: { is_deleted: "0" } });
   const filtered = await departmentModel.count({ where: whereClause });
 
   const docs = await departmentModel.findAll({
     where: whereClause,
-    order: [[sortField, dir]],
+    order: [["id", "DESC"]],
     offset: start,
     limit: length,
   });
@@ -187,6 +194,38 @@ const getAjaxDepartment = async (req, res) => {
   });
 };
 
+const uniqueDepartment = async (req, res) => {
+  const { department_name } = req.query;
+
+  try {
+    const existing = await departmentModel.findOne({
+      where: { department_name, is_deleted: "0" },
+    });
+
+    if (existing) {
+      return res.status(200).json({
+        success: false,
+        message: "Department already exists",
+        data: {},
+        isUnique: false,
+      });
+    }
+
+    res.status(201).json({
+      success: false,
+      message: "Record is unique",
+      data: {},
+      isUnique: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      data: error.message || error,
+    });
+  }
+};
+
 module.exports = {
   addDepartment,
   getAllDepartment,
@@ -194,4 +233,5 @@ module.exports = {
   getDepartmentById,
   updateDepartment,
   getAjaxDepartment,
+  uniqueDepartment,
 };

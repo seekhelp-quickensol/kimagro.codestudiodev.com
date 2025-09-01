@@ -26,7 +26,7 @@ const mediaModuleModel = sequelize.define(
       type: DataTypes.STRING(1000),
       allowNull: true,
     },
-     upload_thumbnail: {
+    upload_thumbnail: {
       type: DataTypes.STRING(1000),
       allowNull: true,
     },
@@ -68,9 +68,9 @@ const mediaModuleModel = sequelize.define(
 );
 
 mediaModuleModel.belongsTo(mediaModel, {
-  foreignKey: 'media_category_id',
-  targetKey: 'id',
-  as: 'media'
+  foreignKey: "media_category_id",
+  targetKey: "id",
+  as: "media",
 });
 
 module.exports = mediaModuleModel;

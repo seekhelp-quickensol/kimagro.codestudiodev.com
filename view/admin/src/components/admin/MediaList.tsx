@@ -25,7 +25,7 @@ interface mediaModCol {
   8: string; //descr_english
   9: string; //descr_hindi
   10: number | string; //status
-  11: string; //status
+  11: string; //upload_thumbnail
 }
 
 interface ApiResponse {
@@ -46,7 +46,7 @@ const MediaList: React.FC = () => {
   );
   const [refresh, setRefresh] = useState(false);
 
-  type ModalType = "upload_photo" | "upload_video";
+  type ModalType = "upload_photo" | "upload_video" | "upload_thumbnail";
 
   const [modalType, setModalType] = useState<ModalType | null>(null);
   const [filteredCategoryName, setFilteredCategoryName] = useState<string>("");
@@ -89,25 +89,52 @@ const MediaList: React.FC = () => {
     },
     {
       name: "Media Category Type",
-      selector: (row: mediaModCol) => row[2],
+      selector: (row: mediaModCol) =>
+        String(row[2])
+          .toLowerCase()
+          .replace(/\b\w/g, (char) => char.toUpperCase()),
     },
+
     {
       name: "Category Name (English)",
       selector: (row: mediaModCol) => row[4],
     },
+    // {
+    //   name: "Image",
+    //   cell: (row: mediaModCol) =>
+    //     row[6] ? (
+    //       <button
+    //         className="text-blue-600 underline"
+    //         onClick={() => openModal(row, "upload_photo")}>
+    //         View
+    //       </button>
+    //     ) : (
+    //       "-"
+    //     ),
+    // },
     {
       name: "Image",
-      cell: (row: mediaModCol) =>
-        row[6] ? (
+      cell: (row: mediaModCol) => {
+        const mediaType = row[2];
+        const fileToShow = mediaType === "videos" ? row[11] : row[6];
+
+        return fileToShow ? (
           <button
             className="text-blue-600 underline"
-            onClick={() => openModal(row, "upload_photo")}>
+            onClick={() =>
+              openModal(
+                row,
+                mediaType === "videos" ? "upload_thumbnail" : "upload_photo"
+              )
+            }>
             View
           </button>
         ) : (
           "-"
-        ),
+        );
+      },
     },
+
     {
       name: "Video",
       cell: (row: mediaModCol) =>
@@ -260,6 +287,15 @@ const MediaList: React.FC = () => {
               <img
                 src={`${import.meta.env.VITE_APP_API_URL}/uploads/images/${
                   selectedMedia[6]
+                }`}
+                alt="Media"
+                className="mx-auto rounded mb-2"
+              />
+            )}
+            {modalType === "upload_thumbnail" && selectedMedia[11] && (
+              <img
+                src={`${import.meta.env.VITE_APP_API_URL}/uploads/images/${
+                  selectedMedia[11]
                 }`}
                 alt="Media"
                 className="mx-auto rounded mb-2"

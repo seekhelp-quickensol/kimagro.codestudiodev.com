@@ -113,7 +113,7 @@ export default function Home() {
                 <Link
                   key={index}
                   to={`/product-categories/${cat.id}`}
-                  className="category-card flex flex-col items-center text-center cursor-pointer my-[25px]"
+                  className="min-h-[100px] category-card flex flex-col items-center text-center cursor-pointer my-[25px]"
                 >
                   <img src={cat?.icon} alt={cat?.name} />
                   <p>{i18n.language === 'hi' ? cat?.nameHindi : cat?.name}</p>

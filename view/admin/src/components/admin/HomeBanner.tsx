@@ -316,7 +316,7 @@ export default function HomeBannerForm() {
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Title (English)<span className="text-red-500">*</span>
+                Title (English) <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="title_english"
@@ -330,7 +330,7 @@ export default function HomeBannerForm() {
 
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Title (Hindi)<span className="text-red-500">*</span>
+                Title (Hindi) <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="title_hindi"
@@ -344,14 +344,11 @@ export default function HomeBannerForm() {
             {/* English Video */}
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Upload Video
-                {!isEdit && <span className="text-red-500">*</span>}
-                {
-                  <span className="text-red-500">
-                    {" "}
-                    ( Recommended Format: MP4 | 1920 × 1080 px )
-                  </span>
-                }
+                Upload Video <span className="text-red-500">*</span>{" "}
+                <span className="text-red-500">
+                  ( Recommended : MP4 | 1920 × 1080 px )
+                </span>
+                {!isEdit}
                 {imagePreview && (
                   <Link
                     to={imagePreview}
@@ -365,7 +362,7 @@ export default function HomeBannerForm() {
               </Label>
               <input
                 type="file"
-                 accept="video/*"
+                accept="video/*"
                 className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
                 placeholder="choose file"
                 id="upload_video"
@@ -379,7 +376,7 @@ export default function HomeBannerForm() {
             {/* English Sub Title */}
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Sub Title (English)<span className="text-red-500">*</span>
+                Sub Title (English) <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="sub_title_english"
@@ -393,7 +390,7 @@ export default function HomeBannerForm() {
             {/* Hindi Sub Title */}
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Sub Title (Hindi)<span className="text-red-500">*</span>
+                Sub Title (Hindi) <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="sub_title_hindi"
@@ -408,7 +405,7 @@ export default function HomeBannerForm() {
             {/* English Description */}
             <div className="col-span-12">
               <Label>
-                Description (English)<span className="text-red-500">*</span>
+                Description (English) <span className="text-red-500">*</span>
               </Label>
               <textarea
                 rows={4}
@@ -425,7 +422,7 @@ export default function HomeBannerForm() {
             {/* Hindi Description */}
             <div className="col-span-12">
               <Label>
-                Description (Hindi)<span className="text-red-500">*</span>
+                Description (Hindi) <span className="text-red-500">*</span>
               </Label>
               <textarea
                 rows={4}

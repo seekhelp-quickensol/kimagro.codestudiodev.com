@@ -5,30 +5,36 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { userSchema } from "../../validations/validationSchema";
 import NewInput from "../form/input/NewInputField";
 import ControlledSelect from "../form/ControlledSelect";
-import { getAllDepartments, getAllDesignations, submitUserForm } from "../services/serviceApi";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
+import {
+  getAllDepartments,
+  getAllDesignations,
+  submitUserForm,
+} from "../services/serviceApi";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
 import useFetchUserById from "../../hooks/useUserById";
 import toast from "react-hot-toast";
 
-
 export default function UserForm() {
- 
   const navigate = useNavigate();
   const { id } = useParams();
- 
+  const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
   // Define department and designation options
-  const [departmentOptions, setDepartmentOptions] = useState<{ value: number; label: string }[]>([]);
-  const [designationOptions, setDesignationOptions] = useState<{ value: number; label: string }[]>([]);
+  const [departmentOptions, setDepartmentOptions] = useState<
+    { value: number; label: string }[]
+  >([]);
+  const [designationOptions, setDesignationOptions] = useState<
+    { value: number; label: string }[]
+  >([]);
 
-  
   useEffect(() => {
     const fetchDepartments = async () => {
       const response = await getAllDepartments();
       const departmentData = response.data.data;
-  
+
       setDepartmentOptions([
         {
           value: 0,
@@ -42,10 +48,9 @@ export default function UserForm() {
     };
 
     const fetchDesignations = async () => {
-      // Assuming you have a function to fetch designations
-      const response = await getAllDesignations(); // Replace with actual API call for designations
+      const response = await getAllDesignations();
       const designationData = response.data.data;
-  
+
       setDesignationOptions([
         {
           value: 0,
@@ -61,7 +66,6 @@ export default function UserForm() {
     fetchDesignations();
     fetchDepartments();
   }, []);
-  
 
   const {
     register,
@@ -83,55 +87,49 @@ export default function UserForm() {
     },
   });
 
-  const {title} = useFetchUserById(reset);
+  const { title } = useFetchUserById(reset);
 
   const onSubmit = async (data: any) => {
     //  setLoading(true);
-        try {
-          const formData = new FormData();
-          formData.append("first_name", data.first_name);
-          formData.append("middle_name", data.middle_name);
-          formData.append("last_name", data.last_name);
-          formData.append("email", data.email);
-          formData.append("username", data.username);
-          formData.append("password", data.password);
-          formData.append("department_id", data.department_id);
-          formData.append("designation_id", data.designation_id);
-        
-    
-          const method = id ? "put" : "post";
-          const response = await submitUserForm(id ?? null, formData, method);
-          const { success, message } = response.data;
-          success ? toast.success(`${message}`) : toast.error( `${message}`);
-    
-          if (success) {
-            reset();
-            navigate("/user-list");
-          }
-        } catch (err) {
-          let msg = "An unexpected error occurred";
-    
-          if (err instanceof Error) {
-            msg = err.message;
-          }
-          if (typeof err === "object" && err !== null && "response" in err) {
-            const axiosErr = err as { response: { data: { message: string } } };
-            msg = axiosErr.response?.data?.message || msg;
-          }
-          reset();
-          toast.error(`Error: ${msg}`);
-        } finally {
-          // setLoading(false);
-        }
+    try {
+      const formData = new FormData();
+      formData.append("first_name", data.first_name);
+      formData.append("middle_name", data.middle_name);
+      formData.append("last_name", data.last_name);
+      formData.append("email", data.email);
+      formData.append("username", data.username);
+      formData.append("password", data.password);
+      formData.append("department_id", data.department_id);
+      formData.append("designation_id", data.designation_id);
 
-   
+      const method = id ? "put" : "post";
+      const response = await submitUserForm(id ?? null, formData, method);
+      const { success, message } = response.data;
+      success ? toast.success(`${message}`) : toast.error(`${message}`);
 
+      if (success) {
+        reset();
+        navigate("/user-list");
+      }
+    } catch (err) {
+      let msg = "An unexpected error occurred";
+
+      if (err instanceof Error) {
+        msg = err.message;
+      }
+      if (typeof err === "object" && err !== null && "response" in err) {
+        const axiosErr = err as { response: { data: { message: string } } };
+        msg = axiosErr.response?.data?.message || msg;
+      }
+      reset();
+      toast.error(`Error: ${msg}`);
+    } finally {
+      // setLoading(false);
+    }
   };
-
 
   return (
     <ComponentCard title="User Management " desc={title}>
-      
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-12 gap-6">
           {/* First Name */}
@@ -147,7 +145,6 @@ export default function UserForm() {
               register={register}
               errors={errors}
             />
-
           </div>
 
           {/* Middle Name */}
@@ -162,8 +159,8 @@ export default function UserForm() {
               placeholder="Enter Middle Name"
               className="w-full"
               register={register}
-              errors={errors} />
-
+              errors={errors}
+            />
           </div>
 
           {/* Last Name */}
@@ -177,7 +174,8 @@ export default function UserForm() {
               placeholder="Enter Last Name"
               className="w-full"
               register={register}
-              errors={errors} />
+              errors={errors}
+            />
           </div>
 
           {/* Department */}
@@ -186,15 +184,13 @@ export default function UserForm() {
               Department<span className="text-red-500">*</span>
             </Label>
             <ControlledSelect
-                name="department_id"
-                control={control}
-                errors={errors}
-                
-                options={departmentOptions}
-                placeholder="Select Department"
-                castToNumber
-              />
-
+              name="department_id"
+              control={control}
+              errors={errors}
+              options={departmentOptions}
+              placeholder="Select Department"
+              castToNumber
+            />
           </div>
 
           {/* Designation */}
@@ -203,57 +199,80 @@ export default function UserForm() {
               Designation<span className="text-red-500">*</span>
             </Label>
             <ControlledSelect
-                name="designation_id"
-                control={control}
-                errors={errors}
-                options={designationOptions}
-                placeholder="Select Designation"
-                castToNumber
-              />
+              name="designation_id"
+              control={control}
+              errors={errors}
+              options={designationOptions}
+              placeholder="Select Designation"
+              castToNumber
+            />
           </div>
 
           {/* Email */}
           <div className="col-span-12 md:col-span-6">
-            <Label>Email</Label>
+            <Label>
+              Email<span className="text-red-500">*</span>
+            </Label>
             <NewInput
               name="email"
               type="text"
               placeholder="Enter Email"
               className="w-full"
               register={register}
-              errors={errors} />
+              errors={errors}
+            />
           </div>
 
           {/* Username */}
           <div className="col-span-12 md:col-span-6">
-            <Label>Username</Label>
+            <Label>
+              Username<span className="text-red-500">*</span>
+            </Label>
             <NewInput
               name="username"
               type="text"
               placeholder="Enter Username"
               className="w-full"
               register={register}
-              errors={errors} />
+              errors={errors}
+            />
           </div>
 
-          {/* Password */}
-          <div className="col-span-12 md:col-span-6">
-            <Label>Password</Label>
-            <NewInput
-              name="password"
-              type="text"
-              placeholder="Enter Password"
-              className="w-full"
-              register={register}
-              errors={errors} />
-          </div>
+          {!id && (
+            <div className="col-span-12 md:col-span-6 relative">
+              <Label htmlFor="password">
+                Password<span className="text-red-500">*</span>
+              </Label>
+              <NewInput
+                id="password"
+                name="password"
+                type={passwordVisible ? "text" : "password"}
+                placeholder="Enter Password"
+                className="w-full"
+                register={register}
+                errors={errors}
+              />
+              <button
+                type="button"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+                className="absolute right-3 top-[3rem] -translate-y-1/2 p-1 focus:outline-none"
+                aria-label={
+                  passwordVisible ? "Hide password" : "Show password"
+                }>
+                {passwordVisible ? (
+                  <EyeIcon className="size-5 fill-gray-500 dark:fill-gray-400" />
+                ) : (
+                  <EyeCloseIcon className="size-5 fill-gray-500 dark:fill-gray-400" />
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="col-span-12">
             <button
               type="submit"
-              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-            >
+              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
               Submit
             </button>
           </div>

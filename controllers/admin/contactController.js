@@ -27,45 +27,54 @@ const getAjaxContact = async (req, res) => {
   const length = parseInt(req.body.length) || 10;
   const order = req.body.order || [];
   const searchValue = req.body.search?.value || "";
+
   const filteredStatus = req.query?.status || "all";
-  const filteredMobile = req.query?.mobile || "";
-  const filteredName = req.query?.name || "";
+  // const filteredMobile = req.query?.mobile || "";
+  // const filteredName = req.query?.name || "";
+  const filteredMobile = req.query?.mobile || req.body?.mobile || "";
+  const filteredName = req.query?.name || req.body?.name || "";
 
   const colIndex = order[0]?.column || 0;
   const dir = order[0]?.dir === "asc" ? "ASC" : "DESC";
- const columns = [
-  "id",
-  "name",
-  "mobile",
-  "email",
-  "company",
-  "title",
-  "message",
-  "status"
-];
+  const columns = [
+    "id",
+    "name",
+    "mobile",
+    "email",
+    "company",
+    "title",
+    "message",
+    "status",
+  ];
 
   const sortField = columns[colIndex] || "id";
+  const whereClause = {
+    is_deleted: "0",
+  };
 
-  const whereClause = searchValue
-    ? {
-        [Op.or]: [{ name: { [Op.like]: `%${searchValue}%` } }],
-        [Op.or]: [{ mobile: { [Op.like]: `%${searchValue}%` } }],
-        [Op.or]: [{ email: { [Op.like]: `%${searchValue}%` } }],
-        [Op.or]: [{ company: { [Op.like]: `%${searchValue}%` } }],
-      }
-    : {};
+  if (searchValue) {
+    whereClause[Op.or] = [
+      { name: { [Op.like]: `%${searchValue}%` } },
+      { mobile: { [Op.like]: `%${searchValue}%` } },
+      { email: { [Op.like]: `%${searchValue}%` } },
+      { company: { [Op.like]: `%${searchValue}%` } },
+      { title: { [Op.like]: `%${searchValue}%` } },
+    ];
+  }
 
   if (filteredStatus !== "all") {
     whereClause.status = filteredStatus;
   }
-  if (filteredMobile !== "") {
+
+  if (filteredMobile) {
     whereClause.mobile = { [Op.like]: `%${filteredMobile}%` };
   }
-  if (filteredName !== "") {
+
+  if (filteredName) {
     whereClause.name = { [Op.like]: `%${filteredName}%` };
   }
 
-  whereClause.is_deleted = "0";
+  // whereClause.is_deleted = "0";
 
   const total = await contactFormModel.count();
   const filtered = await contactFormModel.count({ where: whereClause });
@@ -87,7 +96,6 @@ const getAjaxContact = async (req, res) => {
     row.title,
     row.message,
     row.status,
-    
   ]);
 
   res.json({

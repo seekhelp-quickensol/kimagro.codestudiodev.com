@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate, useParams, Link } from "react-router-dom";
 
-
 import NewInput from "../form/input/NewInputField";
 import CategoryList from "./CategoryList";
 import toast from "react-hot-toast";
@@ -21,14 +20,14 @@ interface CategoryFormValues {
 
 export default function CategoryForm() {
   const [refresh, setRefresh] = useState(false);
-  const[title,setTitle] = useState("Add category");
-  
+  const [title, setTitle] = useState("Add category");
+
   const navigate = useNavigate();
 
   Modal.setAppElement("#root");
 
   const { id } = useParams();
-  const isEdit = !!id; 
+  const isEdit = !!id;
   const [imagePreview, setImagePreview] = useState("");
 
   const {
@@ -45,7 +44,6 @@ export default function CategoryForm() {
       upload_img: null,
     });
     setImagePreview("");
-    
   };
 
   const onSubmit = async (data: CategoryFormValues) => {
@@ -64,15 +62,14 @@ export default function CategoryForm() {
       const response = await submitCategoryForm(id ?? null, formData, method);
       const { success, message } = response.data;
       console.log("Response:", response.data);
-      success ? toast.success(`${message}`) : toast.error( `${message}`);
+      success ? toast.success(`${message}`) : toast.error(`${message}`);
 
       if (success) {
         resetForm();
         navigate("/add-category");
         setRefresh(!refresh);
       } else {
-        toast.error( `${message}`);
-
+        toast.error(`${message}`);
       }
     } catch (err) {
       let msg = "An unexpected error occurred";
@@ -90,11 +87,10 @@ export default function CategoryForm() {
       // resetForm();
     }
   };
- 
 
   useEffect(() => {
     if (id) {
-      setTitle("Update category")
+      setTitle("Update category");
 
       getCategoryById(id)
         .then((res) => {
@@ -113,9 +109,8 @@ export default function CategoryForm() {
           }
         })
         .catch(() => toast.error("Error fetching media data"));
-    }
-    else{
-      setTitle("Add category")
+    } else {
+      setTitle("Add category");
     }
   }, [id, reset]);
 
@@ -131,7 +126,7 @@ export default function CategoryForm() {
             {/* English Title */}
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Title (English)<span className="text-red-500">*</span>
+                Title (English) <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="title_english"
@@ -146,7 +141,7 @@ export default function CategoryForm() {
             {/* Hindi Title */}
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Title (Hindi)<span className="text-red-500">*</span>
+                Title (Hindi) <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="title_hindi"
@@ -161,9 +156,11 @@ export default function CategoryForm() {
             {/* Image */}
             <div className="col-span-12 md:col-span-4">
               <Label>
-                Upload Image
-                {!isEdit && <span className="text-red-500"> *</span>}
-                {<span className="text-red-500"> ( Recommended Format: JPG, PNG, JPEG | 60 x 60 px )</span>}
+                Upload Image <span className="text-red-500">*</span>{" "}
+                <span className="text-red-500">
+                  ( Recommended : PNG, JPEG, JPG | 60 × 60 px )
+                </span>
+                {!isEdit}
                 {imagePreview && (
                   <Link
                     to={imagePreview}
@@ -177,6 +174,7 @@ export default function CategoryForm() {
               </Label>
               <input
                 type="file"
+                accept=".png,.jpg,.jpeg"
                 className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
                 placeholder="choose file"
                 id="upload_img"
@@ -203,11 +201,7 @@ export default function CategoryForm() {
         </form>
       </ComponentCard>
       <div className="p-4 bg-white rounded-xl shadow">
-        <CategoryList
-          refresh={refresh}
-          setRefresh={setRefresh}
-           
-        />
+        <CategoryList refresh={refresh} setRefresh={setRefresh} />
       </div>
     </div>
   );

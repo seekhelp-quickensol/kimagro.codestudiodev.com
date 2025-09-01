@@ -84,7 +84,7 @@ export default function DesignationMaster() {
             {/* Designation Name */}
             <div className="col-span-12 md:col-span-6">
               <Label>
-                Designation Name<span className="text-red-500">*</span>
+                Designation Name{" "}<span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="designation_name"

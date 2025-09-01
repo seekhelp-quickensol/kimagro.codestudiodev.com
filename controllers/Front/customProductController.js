@@ -158,7 +158,7 @@ const getProductsByCategories = async (req, res) => {
         ],
         limit: limit,
         offset: offset,
-        order: [["created_on", "DESC"]], // Order by newest first
+        order: [["created_on", "ASC"]], // Order by Oldest first
       });
   
       const response = {

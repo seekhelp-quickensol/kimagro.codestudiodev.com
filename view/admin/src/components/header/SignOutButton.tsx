@@ -2,29 +2,49 @@ import { adminLogOut } from "../../features/auth/authSlice";
 import { persistor } from "../../features/auth/store";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../features/auth/store";
+import Swal from "sweetalert2";
 
+// type SignOutButtonProps = {
+//   isExpanded: boolean;
+// };
 
-const SignOutButton = () => {
+const SignOutButton = ({ isExpanded = true }) => {
+
   const dispatch = useDispatch<AppDispatch>();
-  const handleLogout = () => {
-    dispatch(adminLogOut()).then(() => {
-      persistor.purge();  
-    });
+  const handleLogout = async () => {
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure you want to sign out?",
+        text: "You’ll need to log in again to access your account.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, sign out",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        dispatch(adminLogOut()).then(() => {
+          persistor.purge();
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <button
       onClick={handleLogout}
-      className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm  dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-    >
+      className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm  dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
       <svg
         className="fill-gray-500 group-hover:fill-gray-700 dark:group-hover:fill-gray-300"
         width="24"
         height="24"
         viewBox="0 0 24 24"
         fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+        xmlns="http://www.w3.org/2000/svg">
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -32,10 +52,9 @@ const SignOutButton = () => {
           fill=""
         />
       </svg>
-      Sign out
+      {isExpanded ? "Sign out" : " "}
     </button>
   );
 };
 
 export default SignOutButton;
- 
