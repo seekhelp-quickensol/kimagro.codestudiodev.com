@@ -34,6 +34,9 @@ const TagInput: React.FC<TagInputProps> = ({
             onChange={(val) => field.onChange(val)}
             value={field.value}
             formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
+            components={{
+              IndicatorSeparator: () => null
+            }}
             styles={{
               control: (base) => ({
                 ...base,

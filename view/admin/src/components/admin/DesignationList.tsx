@@ -30,6 +30,7 @@ interface ApiResponse {
   };
 }
 
+
 interface DesignationListProps {
   refresh: boolean;
   setRefresh: (value: boolean) => void;
@@ -165,7 +166,8 @@ const DesignationList: React.FC<DesignationListProps> = ({
           url={filteredUrl}
           columns={columns}
           refresh={refresh}
-          
+         
+
         />
       </div>
     </>

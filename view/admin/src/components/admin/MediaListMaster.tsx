@@ -70,7 +70,7 @@ export default function MediaMasterCategoryList() {
   return (
     <div className="p-4 bg-white rounded-xl shadow">
       {/* Search bar */}
-      <div className="mb-4 flex justify-between items-center">
+      <div className="mb-4 flex justify-between items-center ">
         <input
           type="text"
           placeholder="Search..."

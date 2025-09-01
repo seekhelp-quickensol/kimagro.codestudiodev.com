@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ComponentCard from "./../common/ComponentCard";
 import Label from "../form/Label";
-import { submitDepartmentForm } from "../../components/services/serviceApi";
+import { checkDepartmentNameUnique, submitDepartmentForm } from "../../components/services/serviceApi";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { departmentSchema } from "../../validations/validationSchema";
@@ -12,6 +12,7 @@ import NewInput from "../../components/form/input/NewInputField";
 import { useNavigate, useParams } from "react-router";
 import useDepartmentById from "../../hooks/useDepartmentById";
 import toast from "react-hot-toast";
+import { useUniqueValidation } from "../../hooks/useUniqueValidation";
 
 export default function DepartmentMaster() {
   const { id } = useParams();
@@ -21,23 +22,75 @@ export default function DepartmentMaster() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(departmentSchema),
+    resolver: yupResolver(departmentSchema(id || null)),
     defaultValues: {
       department_name: "",
     },
+    mode: 'onChange',
   });
 
 
   
-  
 
   const {title} = useDepartmentById(reset);
 
+  const departmentName = watch('department_name');
+
+  // Set up unique validation hook
+  const {
+    validateUnique,
+    isValidating,
+    isUnique,
+    resetValidation
+  } = useUniqueValidation({
+    checkUnique: checkDepartmentNameUnique,
+    debounceMs: 300,
+    minLength: 2,
+    errorMessage: 'This department name already exists',
+    currentId: id || null
+  });
+
+  // Reset validation when component unmounts or ID changes
+  useEffect(() => {
+    resetValidation();
+  }, [id, resetValidation]);
+
+  // Validate uniqueness when department name changes
+  useEffect(() => {
+    if (departmentName && departmentName.trim().length >= 2) {
+      validateUnique(departmentName);
+    } else {
+      resetValidation();
+    }
+  }, [departmentName, validateUnique, resetValidation]);
+  const getInputState = () => {
+    if (isValidating) return 'loading';
+    if (errors.department_name) return 'error';
+    if (isUnique === false) return 'error';
+    if (isUnique === true && departmentName && departmentName.trim().length >= 2) return 'success';
+    return 'default';
+  };
+
+  const getInputHint = () => {
+    if (isValidating) return 'Checking availability...';
+    if (errors.department_name) return undefined; // Let error message show
+    if (isUnique === false) return 'This department name is already taken';
+    if (isUnique === true && departmentName && departmentName.trim().length >= 2) {
+      return 'Department name is available';
+    }
+    return '';
+  };
   const onSubmit = async (data: any) => {
     //  setLoading(true);
     try {
+      const isNameUnique = await checkDepartmentNameUnique(data.department_name.trim(), id || null);
+      
+      if (!isNameUnique) {
+        return;
+      }
       const formData = new FormData();
       formData.append("department_name", data.department_name);
       const method = id ? "put" : "post";
@@ -85,6 +138,8 @@ export default function DepartmentMaster() {
                 className="w-full"
                 register={register}
                 errors={errors}
+                success={getInputState() === 'success'}
+                hint={getInputHint()}
                
               />
             </div>

@@ -1,8 +1,13 @@
 import ComponentCard from "../common/ComponentCard";
 import Label from "../form/Label";
 import { categorySchema } from "../../validations/validationSchema";
-import { getCategoryById, submitCategoryForm } from "../services/serviceApi";
+import {
+  getCategoryById,
+  submitCategoryForm,
+  checkEnCategoryNameUnique,
+} from "../services/serviceApi";
 import { useState, useEffect } from "react";
+import { useUniqueValidation } from "../../hooks/useUniqueValidation";
 import Modal from "react-modal";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -33,9 +38,10 @@ export default function CategoryForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
     reset,
-  } = useForm({ resolver: yupResolver(categorySchema(isEdit)) });
+  } = useForm({ resolver: yupResolver(categorySchema(isEdit , id || null)) });
 
   const resetForm = () => {
     reset({
@@ -46,8 +52,56 @@ export default function CategoryForm() {
     setImagePreview("");
   };
 
+  const enTitleName = watch("title_english");
+
+  const { validateUnique, isValidating, isUnique, resetValidation } =
+    useUniqueValidation({
+      checkUnique: checkEnCategoryNameUnique,
+      debounceMs: 300,
+      minLength: 2,
+      errorMessage: "This category name already exists",
+      currentId: id || null,
+    });
+  useEffect(() => {
+    resetValidation();
+  }, [id, resetValidation]);
+
+  useEffect(() => {
+    if (enTitleName && enTitleName.trim().length >= 2) {
+      validateUnique(enTitleName);
+    } else {
+      resetValidation();
+    }
+  }, [enTitleName, validateUnique, resetValidation]);
+  const getInputState = () => {
+    if (isValidating) return "loading";
+    if (errors.title_english) return "error";
+    if (isUnique === false) return "error";
+    if (isUnique === true && enTitleName && enTitleName.trim().length >= 2)
+      return "success";
+    return "default";
+  };
+
+  const getInputHint = () => {
+    if (isValidating) return "Checking availability...";
+    if (errors.title_english) return undefined;
+    if (isUnique === false) return "This category name is already taken";
+    if (isUnique === true && enTitleName && enTitleName.trim().length >= 2) {
+      return "Category name is available";
+    }
+    return "";
+  };
+
   const onSubmit = async (data: CategoryFormValues) => {
     try {
+      const isNameUnique = await checkEnCategoryNameUnique(
+        data.title_english.trim(),
+        id || null
+      );
+
+      if (!isNameUnique) {
+        return;
+      }
       const formData = new FormData();
       formData.append("title_english", data.title_english);
       formData.append("title_hindi", data.title_hindi);
@@ -135,6 +189,8 @@ export default function CategoryForm() {
                 className="w-full"
                 register={register}
                 errors={errors}
+                success={getInputState() === "success"}
+                hint={getInputHint()}
               />
             </div>
 

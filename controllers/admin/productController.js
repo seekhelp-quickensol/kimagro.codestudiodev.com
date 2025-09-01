@@ -3,7 +3,8 @@ const productModel = require("../../models/productModel");
 const skuModel = require("../../models/SKUModel");
 const categoryModel = require("../../models/categoryModel");
 const innovationModel = require("../../models/innovationModel");
-
+const fs = require("fs");
+const path = require("path");
 const getAllProducts = async (req, res) => {
   try {
     const products = await productModel.findAll({
@@ -117,11 +118,113 @@ const createProudct = async (req, res) => {
   }
 };
 
+const updateProduct = async (req, res) => {
+  const { id } = req.params;
+  const files = req.files || {};
+
+  try {
+    const existingProduct = await productModel.findByPk(id);
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    let dbImages = Array.isArray(existingProduct.upload_multiple_img)
+      ? existingProduct.upload_multiple_img
+      : typeof existingProduct.upload_multiple_img === "string"
+      ? existingProduct.upload_multiple_img
+          .split(",")
+          .map((img) => img.trim())
+          .filter(Boolean)
+      : [];
+
+    let existingImages = Array.isArray(req.body.existing_multiple_images)
+      ? req.body.existing_multiple_images
+      : typeof req.body.existing_multiple_images === "string"
+      ? req.body.existing_multiple_images
+          .split(",")
+          .map((img) => img.trim())
+          .filter(Boolean)
+      : [];
+
+    const deletedImages = dbImages.filter(
+      (img) => !existingImages.includes(img)
+    );
+
+    deletedImages.forEach((img) => {
+      const imgPath = path.join(__dirname, "../uploads/images", img);
+      fs.unlink(imgPath, () => {});
+    });
+
+    const newImages = files.upload_multiple_img?.map((f) => f.filename) || [];
+    const combinedImages = [...existingImages, ...newImages];
+
+    const updatedData = {
+      ...req.body,
+      ...(files.product_img?.[0] && {
+        product_img: files.product_img[0].filename,
+      }),
+      ...(files.upload_brouch_english?.[0] && {
+        upload_brouch_english: files.upload_brouch_english[0].filename,
+      }),
+      ...(files.upload_brouch_hindi?.[0] && {
+        upload_brouch_hindi: files.upload_brouch_hindi[0].filename,
+      }),
+      upload_multiple_img: combinedImages.join(","),
+    };
+
+    await productModel.update(updatedData, {
+      where: { id },
+    });
+
+    const updatedSKU = await productModel.findByPk(id);
+    return res.status(200).json({
+      success: true,
+      message: "Record updated successfully",
+      data: updatedSKU,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error updating record",
+      data: null,
+      error,
+    });
+  }
+};
+
 // const updateProduct = async (req, res) => {
 //   const { id } = req.params;
 //   const files = req.files || {};
 
 //   try {
+//     const existingProduct = await productModel.findByPk(id);
+
+//     if (!existingProduct) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
+
+//     // Get existing image names from frontend
+//     let existingImages = req.body.existing_multiple_images || [];
+
+//     if (typeof existingImages === "string") {
+//       existingImages = existingImages
+//         .split(",")
+//         .map((img) => img.trim())
+//         .filter(Boolean);
+//     }
+
+//     // Get newly uploaded image filenames
+//     const newImages = files.upload_multiple_img?.map((f) => f.filename) || [];
+
+//     // Final array is what the frontend intends to keep + newly uploaded
+//     const combinedImages = [...existingImages, ...newImages];
+
 //     const updatedData = {
 //       ...req.body,
 //       ...(files.product_img?.[0] && {
@@ -133,9 +236,7 @@ const createProudct = async (req, res) => {
 //       ...(files.upload_brouch_hindi?.[0] && {
 //         upload_brouch_hindi: files.upload_brouch_hindi[0].filename,
 //       }),
-//       ...(files.upload_multiple_img?.length && {
-//         upload_multiple_img: files.upload_multiple_img.map((f) => f.filename),
-//       }),
+//       upload_multiple_img: combinedImages,
 //     };
 
 //     const [updated] = await productModel.update(updatedData, {
@@ -150,92 +251,21 @@ const createProudct = async (req, res) => {
 //       });
 //     }
 
-//     const updatedSKU = await productModel.findByPk(id);
+//     const updatedProduct = await productModel.findByPk(id);
 //     res.status(200).json({
 //       success: true,
 //       message: "Record updated successfully",
-//       data: updatedSKU,
+//       data: updatedProduct,
 //     });
 //   } catch (error) {
 //     res.status(500).json({
 //       success: false,
 //       message: "Error updating record",
 //       data: null,
-//       error: error,
+//       error,
 //     });
 //   }
 // };
-
-const updateProduct = async (req, res) => {
-  const { id } = req.params;
-  const files = req.files || {};
-
-  try {
-    const existingProduct = await productModel.findByPk(id);
-
-    if (!existingProduct) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
-
-    let existingImages = existingProduct.upload_multiple_img || [];
-
-    if (typeof existingImages === "string") {
-      existingImages = existingImages
-        .split(",")
-        .map((img) => img.trim())
-        .filter(Boolean);
-    }
-    let newImages = [];
-    if (files.upload_multiple_img?.length) {
-      newImages = files.upload_multiple_img.map((f) => f.filename);
-    }
-
-    const combinedImages = [...existingImages, ...newImages];
-
-    const updatedData = {
-      ...req.body,
-      ...(files.product_img?.[0] && {
-        product_img: files.product_img[0].filename,
-      }),
-      ...(files.upload_brouch_english?.[0] && {
-        upload_brouch_english: files.upload_brouch_english[0].filename,
-      }),
-      ...(files.upload_brouch_hindi?.[0] && {
-        upload_brouch_hindi: files.upload_brouch_hindi[0].filename,
-      }),
-      upload_multiple_img: combinedImages,
-    };
-
-    const [updated] = await productModel.update(updatedData, {
-      where: { id },
-    });
-
-    if (updated === 0) {
-      return res.status(200).json({
-        success: true,
-        message: "Record updated successfully",
-        data: null,
-      });
-    }
-
-    const updatedProduct = await productModel.findByPk(id);
-    res.status(200).json({
-      success: true,
-      message: "Record updated successfully",
-      data: updatedProduct,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error updating record",
-      data: null,
-      error: error,
-    });
-  }
-};
 
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
@@ -336,7 +366,7 @@ const getAjaxproducts = async (req, res) => {
 
   const docs = await productModel.findAll({
     where: whereClause,
-    order: [[sortField, dir]],
+    order: [["id", "DESC"]],
     offset: start,
     limit: length,
   });
@@ -472,6 +502,85 @@ const getProductDetails = async (req, res) => {
   }
 };
 
+const uniqueEnProduct = async (req, res) => {
+  const { product_name_english, exclude_id } = req.query;
+
+  if (!req.body) {
+    return res.status(400).json({ error: "Missing request body" });
+  }
+
+  const { product_category_id } = req.body;
+
+  if (!product_category_id) {
+    return res.status(400).json({ error: "Missing product_category_id" });
+  }
+
+  try {
+    // Validate required parameter
+    if (!product_name_english || product_name_english.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "product name is required",
+        data: {},
+        isUnique: false,
+      });
+    }
+
+    // Build query conditions
+    const whereConditions = {
+      product_name_english: product_name_english.trim(),
+      is_deleted: "0",
+    };
+
+    // If exclude_id is provided (for edit mode), exclude that record
+    if (exclude_id) {
+      whereConditions.id = {
+        [Op.ne]: exclude_id, // Assuming you're using Sequelize with Op.ne (not equal)
+        // For raw SQL: whereConditions.id = { $ne: exclude_id }
+        // For Mongoose: whereConditions._id = { $ne: exclude_id }
+      };
+    }
+
+    const existing = await productModel.findOne({
+      where: whereConditions,
+    });
+
+    if (existing) {
+      return res.status(200).json({
+        success: true, // Changed to true since the API call succeeded
+        message: "product name already exists",
+        data: {
+          existingId: existing.id,
+          existingName: existing.product_name_english,
+        },
+        isUnique: false,
+      });
+    }
+
+    // Department name is unique
+    res.status(200).json({
+      // Changed from 201 to 200
+      success: true, // Changed to true since the API call succeeded
+      message: "Product name is available",
+      data: {},
+      isUnique: true,
+    });
+  } catch (error) {
+    console.error("Error checking product uniqueness:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      data: {
+        error: error.message || error,
+        // Don't expose sensitive error details in production
+        ...(process.env.NODE_ENV === "development" && { stack: error.stack }),
+      },
+      isUnique: false, // Default to false on error for safety
+    });
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
@@ -480,4 +589,5 @@ module.exports = {
   deleteProduct,
   getAjaxproducts,
   getProductDetails,
+  uniqueEnProduct,
 };

@@ -70,7 +70,7 @@ const NewInput: FC<InputProps> = ({
         ? "text-error-500"
         : success
         ? "text-success-500"
-        : "text-gray-500"
+        : "text-error-500"
     }`}
   >
     {hasError ? errorMessage?.toString() : hint}

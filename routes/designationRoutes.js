@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { addDesignation,getAllDesignation,getDesignationById,updateDesignation, getAjaxDesignation} = require("../controllers/admin/designationController");
+const { addDesignation,getAllDesignation,getDesignationById,updateDesignation, getAjaxDesignation, uniqueDesignation} = require("../controllers/admin/designationController");
 const {
   designationValidationRules,
   validateRequest,
@@ -16,5 +16,7 @@ router.put("/add-designation/:id",authenticateAdmin,  designationValidationRules
 router.get("/get-designation/:id", getDesignationById);
 
 router.post("/ajax/designation-list", getAjaxDesignation);
+
+router.get("/check-unique",uniqueDesignation);
 
 module.exports = router;

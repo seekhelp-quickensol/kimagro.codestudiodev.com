@@ -9,6 +9,7 @@ const {
   deleteProduct,
   getAllProducts,
   getProductByCategory,
+  uniqueEnProduct,
   getProductDetails,
 } = require("../controllers/admin/productController");
 const {
@@ -57,5 +58,7 @@ router.post("/ajax/product-list", getAjaxproducts);
 router.get("/by-categories/:categoryId", getProductsByCategoryID);
 
 router.get("/product-details/:id", getProductDetails);
+
+router.get("/check-unique", uniqueEnProduct);
 
 module.exports = router;

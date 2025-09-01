@@ -6,8 +6,7 @@ export default function Footer() {
   return (
     <footer
       className="bg-cover bg-center text-white  py-5 md:py-[50px] md:h-[400px]"
-      style={{ backgroundImage: "url('../assets/images/footer-bg.png')" }}
-    >
+      style={{ backgroundImage: "url('../assets/images/footer-bg.png')" }}>
       <div className="container mx-auto px-4 py-8 md:pt-[100px]">
         {/* Mobile View */}
         <div className="flex flex-col sm:hidden ">
@@ -21,119 +20,120 @@ export default function Footer() {
                 className="h-10 mb-3"
               />
               <p className="text-sm leading-5 ">
-                {
-                t("footer.companyName")
-                }
-               <br />
-               {
-                t("footer.address")
-               }
-               <br />
-               {
-                t("footer.customerCare")
-               }
-               <br />
-              {
-                t("footer.email")
-              }
+                {t("footer.companyName")}
+                <br />
+                {t("footer.address")}
+                <br />
+                {t("footer.customerCare")}
+                <br />
+                {t("footer.email")}
               </p>
               {/* Social Icons */}
               <div className="flex space-x-3 mt-3">
-                <a href="https://www.facebook.com/share/1AG1VtYQ4K/"><img src="../assets/images/brand-02.svg" alt="Facebook" className="h-5" /></a>
-                <a href="https://www.instagram.com/sangeeta.patil.334?igsh=bHp5dTV3MDE1ZzJr"><img src="../assets/images/brand-04.svg" alt="Instagram" className="h-5" /></a>
-                <a href="https://youtube.com/@sangeetapatil-pw6dv?si=Hb9u0IWT57rsAaaR"><img src="../assets/images/brand-06.svg" alt="YouTube" className="h-5" /></a>
+                <a target ="__blank" href="https://www.facebook.com/share/1AG1VtYQ4K/">
+                  <img
+                    src="../assets/images/brand-02.svg"
+                    alt="Facebook"
+                    className="h-5"
+                  />
+                </a>
+                <a target ="__blank" href="https://www.instagram.com/sangeeta.patil.334?igsh=bHp5dTV3MDE1ZzJr">
+                  <img
+                    src="../assets/images/brand-04.svg"
+                    alt="Instagram"
+                    className="h-5"
+                  />
+                </a>
+                <a target ="__blank" href="https://youtube.com/@sangeetapatil-pw6dv?si=Hb9u0IWT57rsAaaR">
+                  <img
+                    src="../assets/images/brand-06.svg"
+                    alt="YouTube"
+                    className="h-5"
+                  />
+                </a>
               </div>
             </div>
 
             {/* Right Side: Links */}
             <div className="flex flex-col space-y-1 text-sm text-right mt-8">
-              <Link to="/about">&gt; {
-                t("footer.links.about")
-            }</Link>
-              <Link to="/product-categories">&gt; {
-                t("footer.links.products")
-            }</Link>
-              <Link to="/innovations">&gt; 
-              {
-                t("footer.links.innovations")
-              }
+              <Link to="/about">&gt;&nbsp; {t("footer.links.about")}</Link>
+              <Link to="/product-categories">
+                &gt;&nbsp; {t("footer.links.products")}
               </Link>
-              <Link to="/media">&gt; {
-                t("footer.links.media")
-            }</Link>
-              {/* <Link to="/app">&gt; {
+              <Link to="/innovations">
+                &gt;
+                {t("footer.links.innovations")}
+              </Link>
+              <Link to="/media">&gt;&nbsp; {t("footer.links.media")}</Link>
+              {/* <Link to="/app">&gt;&nbsp; {
                 t("footer.links.app")
             }</Link> */}
-              <Link to="/contact">&gt; {
-                t("footer.links.contact")
-              }</Link>
+              <Link to="/contact">&gt;&nbsp; {t("footer.links.contact")}</Link>
             </div>
           </div>
         </div>
 
         {/* Desktop View */}
-     {/* Desktop View */}
-<div className="hidden sm:grid grid-cols-2 gap-8 ">
-  {/* Left Section */}
-  <div>
-    {/* <img src="../assets/images/Kimaya.png" alt="Kimeya Agro Solutions" className="h-12 mb-4" /> */}
-     <Link to="/" >
-            <img
-              src="../assets/images/Kimaya.png"
-              alt="Kimeya Agro Solutions"
-              className="h-12 mb-4"
-            />
-          </Link>
-    <p className="mb-1">
-      {t("footer.companyName")}
-    </p>
-    <p className="mb-1">
-      {t("footer.address")}
-    </p>
-    <p className="mb-1">{
-      t("footer.customerCare")
-      }</p>
-    <p className="mb-4">{
-      t("footer.email")
-}</p>
-    <div className="flex space-x-4">
-    <a href="https://www.facebook.com/share/1AG1VtYQ4K/"><img src="../assets/images/brand-02.svg" alt="Facebook" className="h-6" /></a>
-    <a href="https://www.instagram.com/sangeeta.patil.334?igsh=bHp5dTV3MDE1ZzJr"><img src="../assets/images/brand-04.svg" alt="Instagram" className="h-6" /></a>
-    <a href="https://youtube.com/@sangeetapatil-pw6dv?si=Hb9u0IWT57rsAaaR"><img src="../assets/images/brand-06.svg" alt="YouTube" className="h-6" /></a>
-    </div>
-  </div>
+        {/* Desktop View */}
+        <div className="hidden sm:grid grid-cols-2 gap-8 ">
+          {/* Left Section */}
+          <div>
+            {/* <img src="../assets/images/Kimaya.png" alt="Kimeya Agro Solutions" className="h-12 mb-4" /> */}
+            <Link to="/">
+              <img
+                src="../assets/images/Kimaya.png"
+                alt="Kimeya Agro Solutions"
+                className="h-12 mb-4"
+              />
+            </Link>
+            <p className="mb-1">{t("footer.companyName")}</p>
+            <p className="mb-1">{t("footer.address")}</p>
+            <p className="mb-1">{t("footer.customerCare")}</p>
+            <p className="mb-4">{t("footer.email")}</p>
+            <div className="flex space-x-4">
+              <a target ="__blank" href="https://www.facebook.com/share/1AG1VtYQ4K/">
+                <img
+                  src="../assets/images/brand-02.svg"
+                  alt="Facebook"
+                  className="h-6"
+                />
+              </a>
+              <a target ="__blank" href="https://www.instagram.com/sangeeta.patil.334?igsh=bHp5dTV3MDE1ZzJr">
+                <img
+                  src="../assets/images/brand-04.svg"
+                  alt="Instagram"
+                  className="h-6"
+                />
+              </a>
+              <a  target ="__blank" href="https://youtube.com/@sangeetapatil-pw6dv?si=Hb9u0IWT57rsAaaR">
+                <img
+                  src="../assets/images/brand-06.svg"
+                  alt="YouTube"
+                  className="h-6"
+     
+                />
+              </a>
+            </div>
+          </div>
 
-  {/* Right Section with Two Columns */}
-  <div className="grid grid-cols-2 gap-x-10 md:items-start md:mt-20">
-    <div className="flex flex-col space-y-2">
-      <Link to="/about">&gt; {
-        t("footer.links.about")
-      }</Link>
-      <Link to="/product-categories">&gt; {
-        t("footer.links.products")
-      
-    }</Link>
-      <Link to="/innovations">&gt; 
-      {
-        t("footer.links.innovations")
-      }
-      </Link>
-    </div>
-    <div className="flex flex-col space-y-2">
-      <Link to="/media">&gt; 
-      {
-        t("footer.links.media")
-      }
-      </Link>
-      
-      <Link to="/contact">&gt; {
+          {/* Right Section with Two Columns */}
+          <div className="grid grid-cols-2 gap-x-10 md:items-start md:mt-20">
+            <div className="flex flex-col space-y-2">
+              <Link to="/about">&gt;&nbsp; {t("footer.links.about")}</Link>
+              <Link to="/product-categories">
+                &gt;&nbsp; {t("footer.links.products")}
+              </Link>
+              <Link to="/innovations">
+                &gt;&nbsp; {t("footer.links.innovations")}
+              </Link>
+            </div>
+            <div className="flex flex-col space-y-2">
+              <Link to="/media">&gt;&nbsp; {t("footer.links.media")}</Link>
 
-        t("footer.links.contact")
-      }</Link>
-    </div>
-  </div>
-</div>
-
+              <Link to="/contact">&gt;&nbsp; {t("footer.links.contact")}</Link>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Bottom Bar */}

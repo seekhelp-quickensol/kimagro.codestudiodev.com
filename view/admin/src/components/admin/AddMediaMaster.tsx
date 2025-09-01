@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import ComponentCard from "./../common/ComponentCard";
 import Label from "../form/Label";
 import { mediaSchema } from "../../validations/validationSchema";
-import { getMediaById, submitMediaForm } from "../services/serviceApi";
+import {
+  getMediaById,
+  submitMediaForm,
+  checkenglishNameUnique,
+} from "../services/serviceApi";
 import { useForm } from "react-hook-form";
 import ControlledSelect from "../form/ControlledSelect";
 import NewInput from "../form/input/NewInputField";
@@ -19,6 +23,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { CheckLineIcon, CloseLineIcon } from "../../icons";
 import Swal from "sweetalert2";
+import { useUniqueValidation } from "../../hooks/useUniqueValidation";
 
 interface mediaFormValues {
   media_category: string;
@@ -199,11 +204,12 @@ export default function MediaMasterPage() {
   const {
     register,
     handleSubmit,
+    watch,
     control,
     formState: { errors },
     reset,
   } = useForm({
-    resolver: yupResolver(mediaSchema),
+    resolver: yupResolver(mediaSchema(id || null)),
   });
 
   const resetForm = () => {
@@ -214,8 +220,56 @@ export default function MediaMasterPage() {
     });
   };
 
+  const englishName = watch("name_english");
+
+  const { validateUnique, isValidating, isUnique, resetValidation } =
+    useUniqueValidation({
+      checkUnique: checkenglishNameUnique,
+      debounceMs: 300,
+      minLength: 2,
+      errorMessage: "This category name already exists",
+      currentId: id || null,
+    });
+  useEffect(() => {
+    resetValidation();
+  }, [id, resetValidation]);
+
+  useEffect(() => {
+    if (englishName && englishName.trim().length >= 2) {
+      validateUnique(englishName);
+    } else {
+      resetValidation();
+    }
+  }, [englishName, validateUnique, resetValidation]);
+  const getInputState = () => {
+    if (isValidating) return "loading";
+    if (errors.name_english) return "error";
+    if (isUnique === false) return "error";
+    if (isUnique === true && englishName && englishName.trim().length >= 2)
+      return "success";
+    return "default";
+  };
+
+  const getInputHint = () => {
+    if (isValidating) return "Checking availability...";
+    if (errors.name_english) return undefined;
+    if (isUnique === false) return "This category name is already taken";
+    if (isUnique === true && englishName && englishName.trim().length >= 2) {
+      return "Category name is available";
+    }
+    return "";
+  };
+
   const onSubmit = async (data: mediaFormValues) => {
     try {
+      const isNameUnique = await checkenglishNameUnique(
+        data.name_english.trim(),
+        id || null
+      );
+
+      if (!isNameUnique) {
+        return;
+      }
       const formData = new FormData();
       formData.append("name_english", data.name_english);
       formData.append("name_hindi", data.name_hindi);
@@ -302,6 +356,8 @@ export default function MediaMasterPage() {
                 className="w-full"
                 register={register}
                 errors={errors}
+                success={getInputState() === "success"}
+                hint={getInputHint()}
               />
             </div>
             <div className="col-span-12 md:col-span-4">
@@ -332,18 +388,19 @@ export default function MediaMasterPage() {
       </ComponentCard>
       <div className="p-4 bg-white rounded-xl shadow">
         <div className="filter-container flex flex-wrap items-center">
-          <div className="w-full md:w-1/3 pe-4">
+          <div className="w-full md:w-1/3 pe-4 relative">
             <Label className="mb-2">Filter by Media Type</Label>
             <select
               className="h-11 w-full appearance-none rounded-lg border px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-1"
               value={mediaFilter}
               onChange={handleMediaFilterChange}
-              style={{ width: "200px", marginBottom: "16px" }}>
+            >
               <option value="all">All Media Type</option>
               <option value="photos">Photos</option>
               <option value="videos">Videos</option>
               <option value="news">News</option>
             </select>
+            <div className="icon-container icon-container-2" aria-hidden="true"><svg height="20" width="20" fill=" hsl(0, 0%, 80%)" viewBox="0 0 20 20" aria-hidden="true" focusable="false" className="css-tj5bde-Svg"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"></path></svg></div>
           </div>
         </div>
         <hr className="my-8" />

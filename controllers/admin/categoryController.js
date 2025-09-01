@@ -250,7 +250,7 @@ const getAjaxCategories = async (req, res) => {
 
   const docs = await categoryModel.findAll({
     where: whereClause,
-    order: [[sortField, dir]],
+    order: [["id", "DESC"]],
     offset: start,
     limit: length,
   });
@@ -272,6 +272,75 @@ const getAjaxCategories = async (req, res) => {
   });
 };
 
+const uniqueEnCategory = async (req, res) => {
+  const { title_english, exclude_id } = req.query;
+
+  try {
+    // Validate required parameter
+    if (!title_english || title_english.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "category name is required",
+        data: {},
+        isUnique: false,
+      });
+    }
+
+    // Build query conditions
+    const whereConditions = {
+      title_english: title_english.trim(),
+      is_deleted: "0",
+    };
+
+    // If exclude_id is provided (for edit mode), exclude that record
+    if (exclude_id) {
+      whereConditions.id = {
+        [Op.ne]: exclude_id, // Assuming you're using Sequelize with Op.ne (not equal)
+        // For raw SQL: whereConditions.id = { $ne: exclude_id }
+        // For Mongoose: whereConditions._id = { $ne: exclude_id }
+      };
+    }
+
+    const existing = await categoryModel.findOne({
+      where: whereConditions,
+    });
+
+    if (existing) {
+      return res.status(200).json({
+        success: true, // Changed to true since the API call succeeded
+        message: "category name already exists",
+        data: {
+          existingId: existing.id,
+          existingName: existing.title_english,
+        },
+        isUnique: false,
+      });
+    }
+
+    // Department name is unique
+    res.status(200).json({
+      // Changed from 201 to 200
+      success: true, // Changed to true since the API call succeeded
+      message: "Category name is available",
+      data: {},
+      isUnique: true,
+    });
+  } catch (error) {
+    console.error("Error checking category uniqueness:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      data: {
+        error: error.message || error,
+        // Don't expose sensitive error details in production
+        ...(process.env.NODE_ENV === "development" && { stack: error.stack }),
+      },
+      isUnique: false, // Default to false on error for safety
+    });
+  }
+};
+
 module.exports = {
   getAllCategories,
   getCategoryById,
@@ -279,4 +348,5 @@ module.exports = {
   updateCategory,
   deleteCategory,
   getAjaxCategories,
+  uniqueEnCategory,
 };

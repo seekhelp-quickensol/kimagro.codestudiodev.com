@@ -35,6 +35,9 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
             placeholder={placeholder}
             isClearable={isClearable}
             isDisabled={isDisabled}
+            components={{
+              IndicatorSeparator: () => null
+            }}
             onChange={(val) => {
               const values = val ? val.map((v) => v.value) : [];
               field.onChange(values);

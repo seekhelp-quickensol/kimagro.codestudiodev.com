@@ -354,7 +354,7 @@ const ProductList: React.FC = () => {
   return (
     <div className="p-4 bg-white rounded-xl shadow">
       <div className="filter-container flex flex-wrap gap-4">
-        <div className="w-full md:w-1/3 pe-4">
+        <div className="w-full md:w-1/3 pe-4 relative">
           <Label className="mb-2">Filter by SKU Unit</Label>
           <select
             className="h-11 w-full appearance-none rounded-lg border px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-1"
@@ -366,6 +366,7 @@ const ProductList: React.FC = () => {
               </option>
             ))}
           </select>
+          <div className="icon-container icon-container-2" aria-hidden="true"><svg height="20" width="20" fill=" hsl(0, 0%, 80%)" viewBox="0 0 20 20" aria-hidden="true" focusable="false" className="css-tj5bde-Svg"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"></path></svg></div>
           {/* <div className="pointer-events-none absolute right-10 top-10 flex items-center text-gray-500">
             ▼
           </div> */}

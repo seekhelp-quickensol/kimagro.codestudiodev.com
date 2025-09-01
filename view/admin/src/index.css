@@ -864,10 +864,10 @@ textarea::placeholder {
 .ehkueD {
   flex-grow: 1 !important;
 }
-.kXOQrs,
+/* .kXOQrs,
 .kFhx {
   justify-content: center !important;
-}
+} */
 .css-t3ipsp-control {
   box-shadow: none !important;
 }
@@ -894,6 +894,22 @@ div:where(.swal2-container) h2:where(.swal2-title){
   color: #f04438;
   font-size: 12px;
   margin: 5px;
+}.css-1u9des2-indicatorSeparator{
+  background-color: #fff;
+}
+.icon-container{
+  color: hsl(0, 0%, 80%);
+  position: absolute;
+  top: 10px;
+  right: 15px;
+}.icon-container svg{
+  color: hsl(0, 0%, 80%) !important;
+ 
+}
+.icon-container-2{
+ 
+  top: 40px;
+  right: 30px;
 }
 
 .css-1u9des2-indicatorSeparator {

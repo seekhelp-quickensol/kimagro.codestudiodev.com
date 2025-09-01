@@ -8,6 +8,7 @@ const {
   updateMedia,
   getAllcategoryMaster,
   deleteMedia,
+  uniqueEnCategory,
 } = require("../controllers/admin/mediaMasterController");
 const {
   mediaMasterValidationRules,
@@ -34,5 +35,7 @@ router.put(
 router.delete("/delete-media/:id", authenticateAdmin, deleteMedia);
 
 router.post("/ajax/media-list", getAjaxMedias);
+
+router.get("/check-unique", uniqueEnCategory);
 
 module.exports = router;

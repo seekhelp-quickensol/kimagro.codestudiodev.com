@@ -336,14 +336,214 @@ export const submitDesignationForm = (
     data: formData,
   });
 
-  interface uniqueResponse {
-    data: {};
-    success: boolean;
-    message: string;
-    isUnique:boolean;
-    
+export const checkDepartmentNameUnique = async (
+  departmentName: string,
+  excludeId: string | null = null
+): Promise<boolean> => {
+  try {
+    if (!departmentName || departmentName.trim().length === 0) {
+      return true; // Empty names are handled by form validation
+    }
+    const params = new URLSearchParams({
+      department_name: departmentName.trim(),
+    });
+    if (excludeId) {
+      params.append("exclude_id", excludeId);
+    }
+    const response = await instance({
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      url: `/api/department/check-unique?${params}`,
+    });
+
+    if (!response.data) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.data;
+    return data.isUnique || false;
+  } catch (error) {
+    console.error("Error checking department name uniqueness:", error);
+    // Return true on error to avoid blocking form submission
+    return true;
   }
-  export const getUniqueService = (
-    api: string
-  ): Promise<AxiosResponse<uniqueResponse>> =>
-    instance.get(api);
+};
+
+export const checkDesegnationNameUnique = async (
+  designationName: string,
+  excludeId: string | null = null
+): Promise<boolean> => {
+  try {
+    if (!designationName || designationName.trim().length === 0) {
+      return true; // Empty names are handled by form validation
+    }
+    const params = new URLSearchParams({
+      designation_name: designationName.trim(),
+    });
+    if (excludeId) {
+      params.append("exclude_id", excludeId);
+    }
+    const response = await instance({
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      url: `/api/designation/check-unique?${params}`,
+    });
+
+    if (!response.data) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.data;
+    return data.isUnique || false;
+  } catch (error) {
+    console.error("Error checking designation name uniqueness:", error);
+    // Return true on error to avoid blocking form submission
+    return true;
+  }
+};
+
+export const checkEnCategoryNameUnique = async (
+  enTitleName: string,
+  excludeId: string | null = null
+): Promise<boolean> => {
+  try {
+    if (!enTitleName || enTitleName.trim().length === 0) {
+      return true; // Empty names are handled by form validation
+    }
+    const params = new URLSearchParams({
+      title_english: enTitleName.trim(),
+    });
+    if (excludeId) {
+      params.append("exclude_id", excludeId);
+    }
+    const response = await instance({
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      url: `/api/categories/check-unique?${params}`,
+    });
+
+    if (!response.data) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.data;
+    return data.isUnique || false;
+  } catch (error) {
+    console.error("Error checking category name uniqueness:", error);
+    // Return true on error to avoid blocking form submission
+    return true;
+  }
+};
+
+export const checkenglishNameUnique = async (
+  englishName: string,
+  excludeId: string | null = null
+): Promise<boolean> => {
+  try {
+    if (!englishName || englishName.trim().length === 0) {
+      return true; // Empty names are handled by form validation
+    }
+    const params = new URLSearchParams({
+      name_english: englishName.trim(),
+    });
+    if (excludeId) {
+      params.append("exclude_id", excludeId);
+    }
+    const response = await instance({
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      url: `/api/medias/check-unique?${params}`,
+    });
+
+    if (!response.data) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.data;
+    return data.isUnique || false;
+  } catch (error) {
+    console.error("Error checking category name uniqueness:", error);
+    // Return true on error to avoid blocking form submission
+    return true;
+  }
+};
+
+export const checkenglishProNameUnique = async (
+  productEnName: string,
+  excludeId: string | null = null
+): Promise<boolean> => {
+  try {
+    if (!productEnName || productEnName.trim().length === 0) {
+      return true; // Empty names are handled by form validation
+    }
+    const params = new URLSearchParams({
+      product_name_english: productEnName.trim(),
+    });
+    if (excludeId) {
+      params.append("exclude_id", excludeId);
+    }
+    const response = await instance({
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      url: `/api/products/check-unique?${params}`,
+    });
+
+    if (!response.data) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.data;
+    return data.isUnique || false;
+  } catch (error) {
+    console.error("Error checking product name uniqueness:", error);
+    // Return true on error to avoid blocking form submission
+    return true;
+  }
+};
+
+export const checkeQuantityUnique = async (
+  quantityInput: string,
+  unit: string = '',
+  excludeId: string | null = null
+): Promise<boolean> => {
+  try {
+    if (!quantityInput || quantityInput.trim().length === 0) {
+      return true; // Empty names are handled by form validation
+    }
+    const params = new URLSearchParams({
+      quantity: quantityInput.trim(),
+      unit: unit
+    });
+    if (excludeId) {
+      params.append("exclude_id", excludeId);
+    }
+    const response = await instance({
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      url: `/api/skus/check-unique?${params}`,
+    });
+
+    if (!response.data) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.data;
+    return data.isUnique || false;
+  } catch (error) {
+    console.error("Error checking quantity uniqueness:", error);
+    // Return true on error to avoid blocking form submission
+    return true;
+  }
+};

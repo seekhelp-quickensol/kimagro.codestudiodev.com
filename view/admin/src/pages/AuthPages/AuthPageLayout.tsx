@@ -19,7 +19,7 @@ export default function AuthLayout({
               <Link to="/" className="block mb-4">
                 <img
                
-                  src="../assets/images/logo/logo.svg"
+                  src="./assets/images/logo/logo.svg"
                   alt="Logo"
                 />
               </Link>

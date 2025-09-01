@@ -19,7 +19,9 @@ export const setupInterceptors = (store: Store): void => {
     
       if (err.response?.status === 401) {
           store.dispatch({ type: "auth/logout" });
-          window.location.href = "/admin";
+          setTimeout(() => {
+            window.location.href = "/admin";
+          }, 1000);
         }
       if (err.response?.status === 403) {
         console.error("Access forbidden: You do not have permission to access this resource.");

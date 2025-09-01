@@ -279,7 +279,7 @@ const getAjaxMediaModules = async (req, res) => {
 
     const docs = await mediaModuleModel.findAll({
       where: whereClause,
-      order: [[sortField, dir]],
+      order: [["id", "DESC"]],
       offset: start,
       limit: length,
       include: [includeMedia],

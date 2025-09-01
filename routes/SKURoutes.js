@@ -8,6 +8,7 @@ const {
   updateSKU,
   getAllskus,
   deleteSKU,
+  uniqueSKU
 } = require("../controllers/admin/skuController");
 const {
   skuValidationRules,
@@ -34,5 +35,7 @@ router.put(
 router.delete("/delete-sku/:id", authenticateAdmin, deleteSKU);
 
 router.post("/ajax/sku-list", getAjaxSKUS);
+
+router.get("/check-unique", uniqueSKU);
 
 module.exports = router;

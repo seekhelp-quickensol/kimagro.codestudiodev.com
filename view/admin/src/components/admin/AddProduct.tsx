@@ -14,10 +14,12 @@ import {
   submitProductForm,
   getAllCategoriees,
   getAllSKUS,
+  checkenglishProNameUnique,
 } from "../services/serviceApi";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate, useParams } from "react-router-dom";
+import { useUniqueValidation } from "../../hooks/useUniqueValidation";
 
 declare global {
   interface JQuery {
@@ -133,11 +135,12 @@ export default function ProductForm() {
     register,
     handleSubmit,
     setValue,
+    watch,
     control,
     getValues,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm({ resolver: yupResolver(productSchema(isEdit)) });
+  } = useForm({ resolver: yupResolver(productSchema(isEdit, id || null)) });
 
   const resetForm = () => {
     reset({
@@ -150,7 +153,6 @@ export default function ProductForm() {
       product_title_english: "",
       product_title_hindi: "",
       sku_id: [],
-      // sku_id: "",
       short_descr_english: "",
       short_descr_hindi: "",
       upload_brouch_english: undefined,
@@ -164,32 +166,70 @@ export default function ProductForm() {
     setHiBrouchPreview("");
   };
 
+  const productEnName = watch("product_name_english");
+
+  const { validateUnique, isValidating, isUnique, resetValidation } =
+    useUniqueValidation({
+      checkUnique: checkenglishProNameUnique,
+      debounceMs: 300,
+      minLength: 2,
+      errorMessage: "This category name already exists",
+      currentId: id || null,
+    });
+  useEffect(() => {
+    resetValidation();
+  }, [id, resetValidation]);
+
+  useEffect(() => {
+    if (productEnName && productEnName.trim().length >= 2) {
+      validateUnique(productEnName);
+    } else {
+      resetValidation();
+    }
+  }, [productEnName, validateUnique, resetValidation]);
+  const getInputState = () => {
+    if (isValidating) return "loading";
+    if (errors.product_name_english) return "error";
+    if (isUnique === false) return "error";
+    if (isUnique === true && productEnName && productEnName.trim().length >= 2)
+      return "success";
+    return "default";
+  };
+
+  const getInputHint = () => {
+    if (isValidating) return "Checking availability...";
+    if (errors.product_name_english) return undefined;
+    if (isUnique === false) return "This category name is already taken";
+    if (
+      isUnique === true &&
+      productEnName &&
+      productEnName.trim().length >= 2
+    ) {
+      return "Category name is available";
+    }
+    return "";
+  };
+
   const onSubmit = async (data: Product) => {
     setLoading(true);
     try {
-      const formData = new FormData();
+      const isNameUnique = await checkenglishProNameUnique(
+        data.product_name_english.trim(),
+        id || null
+      );
 
+      if (!isNameUnique) {
+        return;
+      }
+
+      const formData = new FormData();
       formData.append("product_category_id", data.product_category_id);
       formData.append("product_name_english", data.product_name_english);
       formData.append("product_name_hindi", data.product_name_hindi);
-      // if (data.product_tag_english) {
-      //   formData.append("product_tag_english", data.product_tag_english);
-      // } else {
-      //   formData.append("product_tag_english", "");
-      // }
-
-      // if (data.product_tag_hindi) {
-      //   formData.append("product_tag_hindi", data.product_tag_hindi);
-      // } else {
-      //   formData.append("product_tag_hindi", "");
-      // }
-
       formData.append("product_tag_english", data.product_tag_english ?? "");
       formData.append("product_tag_hindi", data.product_tag_hindi ?? "");
-
       formData.append("product_title_english", data.product_title_english);
       formData.append("product_title_hindi", data.product_title_hindi);
-      // formData.append("sku_id", data.sku_id);
       formData.append("sku_id", data.sku_id.join(","));
       formData.append("short_descr_english", data.short_descr_english);
       formData.append("short_descr_hindi", data.short_descr_hindi);
@@ -199,6 +239,13 @@ export default function ProductForm() {
       }
       if (data.upload_brouch_hindi?.length) {
         formData.append("upload_brouch_hindi", data.upload_brouch_hindi[0]);
+      }
+
+      if (isEdit) {
+        formData.append(
+          "existing_multiple_images",
+          multipleImagePreview.join(",")
+        );
       }
 
       imageArray.forEach((file) => {
@@ -331,15 +378,14 @@ export default function ProductForm() {
         },
         dialogsInBody: true,
         toolbar: [
-          ['style', ['style']],
-          ['font', ['bold', 'underline', 'clear']],
-          ['fontname', ['fontname']],
-          ['para', ['ul', 'ol', 'paragraph']],
-          ['table', ['table']],
-          ['insert', ['link', 'picture']],
-          ['view', ['codeview']]
-
-        ]
+          ["style", ["style"]],
+          ["font", ["bold", "underline", "clear"]],
+          ["fontname", ["fontname"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["table", ["table"]],
+          ["insert", ["link", "picture"]],
+          ["view", ["codeview"]],
+        ],
       });
     }
 
@@ -353,19 +399,35 @@ export default function ProductForm() {
         },
         dialogsInBody: true,
         toolbar: [
-          ['style', ['style']],
-          ['font', ['bold', 'underline', 'clear']],
-          ['fontname', ['fontname']],
-          ['para', ['ul', 'ol', 'paragraph']],
-          ['table', ['table']],
-          ['insert', ['link', 'picture']],
-          ['view', ['codeview']]
-
-        ]
+          ["style", ["style"]],
+          ["font", ["bold", "underline", "clear"]],
+          ["fontname", ["fontname"]],
+          ["para", ["ul", "ol", "paragraph"]],
+          ["table", ["table"]],
+          ["insert", ["link", "picture"]],
+          ["view", ["codeview"]],
+        ],
       });
     }
   }, [setValue]);
 
+  const handleDeleteServerImage = (imgName: string) => {
+    const updated = multipleImagePreview.filter((img) => img !== imgName);
+    console.log("seraver", imgName);
+    setMultipleImagePreview(updated);
+  };
+
+  const handleDeleteNewImage = (index: number) => {
+    setImageArray((prevImages) => {
+      const updatedImages = [...prevImages];
+      updatedImages.splice(index, 1);
+      console.log(index, updatedImages);
+      return updatedImages;
+    });
+  };
+
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  console.log(selectedCategoryId);
   return (
     <ComponentCard title={title}>
       <form
@@ -373,8 +435,8 @@ export default function ProductForm() {
         name="add_product_form"
         id="add_product_form"
         encType="multipart/form-data">
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 md:col-span-4">
+        <div className="grid grid-cols-12 gap-6 ">
+          <div className="col-span-12 md:col-span-4 relative">
             <Label>
               Product Category <span className="text-red-500">*</span>
             </Label>
@@ -382,6 +444,7 @@ export default function ProductForm() {
             <select
               id="product_category_id"
               {...register("product_category_id")}
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
               className="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-1 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800">
               <option
                 className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
@@ -398,10 +461,10 @@ export default function ProductForm() {
                 ))
               )}
             </select>
-
-            <div className="pointer-events-none absolute right-4 top-10 flex items-center text-gray-500">
+            <div className="icon-container icon-container-3" style={{ top: "35px" }} aria-hidden="true"><svg height="20" width="20" fill=" hsl(0, 0%, 80%)" viewBox="0 0 20 20" aria-hidden="true" focusable="false" className="css-tj5bde-Svg"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"></path></svg></div>
+            {/* <div className="pointer-events-none absolute right-4 top-10 flex items-center text-gray-500">
               ▼
-            </div>
+            </div> */}
 
             {typeof errors.product_category_id?.message === "string" && (
               <p className="error">{errors.product_category_id.message}</p>
@@ -420,6 +483,8 @@ export default function ProductForm() {
               className="w-full"
               register={register}
               errors={errors}
+              success={getInputState() === "success"}
+              hint={getInputHint()}
             />
           </div>
 
@@ -444,14 +509,6 @@ export default function ProductForm() {
               placeholder="Enter product tag in english"
               control={control}
             />
-            {/* <NewInput
-              name="product_tag_english"
-              type="text"
-              placeholder="Enter product tag in english"
-              className="w-full"
-              register={register}
-              errors={errors}
-            /> */}
           </div>
 
           <div className="col-span-12 md:col-span-4 taginput">
@@ -461,14 +518,6 @@ export default function ProductForm() {
               placeholder="Enter product tag in hindi"
               control={control}
             />
-            {/* <NewInput
-              name="product_tag_hindi"
-              type="text"
-              placeholder="Enter product tag in hindi"
-              className="w-full"
-              register={register}
-              errors={errors}
-            /> */}
           </div>
 
           {/* Product Image */}
@@ -559,21 +608,55 @@ export default function ProductForm() {
                 <span className="text-red-500">
                   ( Recommended : PNG, JPEG, JPG | 297 × 579 px )
                 </span>
-                <div className="flex gap-2 flex-wrap">
-                  {!isEdit}
-                  {multipleImagePreview.map((img, i) => {
+                <div className="flex gap-2 flex-wrap mt-2">
+                  {multipleImagePreview.map((img) => {
                     const imageUrl = `${import.meta.env.VITE_APP_API_URL
                       }/uploads/images/${img}`;
                     return (
-                      <Link
-                        key={i}
-                        to={imageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer">
-                        <span className="text-blue-500 hover:underline ml-2">
-                          Preview
-                        </span>
-                      </Link>
+                      <div
+                        key={`server-${img}`}
+                        className="relative flex items-center gap-1">
+                        <Link
+                          to={imageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer">
+                          <span className="text-blue-500 hover:underline ml-2">
+                            Preview
+                          </span>
+                        </Link>
+                        <button
+                          type="button"
+                          className="bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center ml-1"
+                          onClick={() => handleDeleteServerImage(img)}
+                          title="Delete image">
+                          ✖
+                        </button>
+                      </div>
+                    );
+                  })}
+
+                  {imageArray.map((file, i) => {
+                    const previewUrl = URL.createObjectURL(file);
+                    return (
+                      <div
+                        key={`new-${i}`}
+                        className="relative flex items-center gap-1">
+                        <Link
+                          to={previewUrl}
+                          target="_blank"
+                          rel="noopener noreferrer">
+                          <span className="text-blue-500 hover:underline ml-2">
+                            Preview
+                          </span>
+                        </Link>
+                        <button
+                          type="button"
+                          className="bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center ml-1"
+                          onClick={() => handleDeleteNewImage(i)}
+                          title="Delete image">
+                          ✖
+                        </button>
+                      </div>
                     );
                   })}
                 </div>

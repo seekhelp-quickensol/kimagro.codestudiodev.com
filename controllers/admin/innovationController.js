@@ -1,12 +1,23 @@
 const { Op, where } = require("sequelize");
 const innovationModel = require("../../models/innovationModel");
+const productModel = require("../../models/productModel");
 
 const getAllInnovations = async (req, res) => {
   try {
     const innovations = await innovationModel.findAll({
       where: {
-        is_deleted: "0",
+        is_deleted: "0", // innovation itself must not be deleted
       },
+      include: [
+        {
+          model: productModel,
+          as: "product",
+          where: {
+            is_deleted: "0", // filter products that are not deleted
+          },
+          required: true, // ensures only innovations with matching products are returned
+        },
+      ],
     });
 
     res.status(200).json({
@@ -19,7 +30,7 @@ const getAllInnovations = async (req, res) => {
       success: false,
       message: "Internal Server Error",
       data: null,
-      error: error,
+      error: error.message,
     });
   }
 };
@@ -236,7 +247,7 @@ const getAjaxInnovations = async (req, res) => {
 
   const docs = await innovationModel.findAll({
     where: whereClause,
-    order: [[sortField, dir]],
+    order: [["id", "DESC"]],
     offset: start,
     limit: length,
   });

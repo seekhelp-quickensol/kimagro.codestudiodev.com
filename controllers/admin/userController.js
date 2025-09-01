@@ -283,7 +283,7 @@ const getAjaxUser = async (req, res) => {
 
     const users = await authModel.findAll({
       where: whereClause,
-      order: [[sortField, dir]],
+      order: [["id", "DESC"]],
       offset: start,
       limit: length,
       include: [includeDepartment, includeDesignation],

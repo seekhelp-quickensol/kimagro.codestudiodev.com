@@ -203,14 +203,12 @@ const getAjaxSKUS = async (req, res) => {
             : [{ quantity: { [Op.eq]: parsedValue } }]),
           {
             unit: {
-              [Op.like]: `%${searchValue}%`
-            }
-          }
-        ]
+              [Op.like]: `%${searchValue}%`,
+            },
+          },
+        ],
       }
     : {};
-  
-
 
   if (filteredStatus !== "all") {
     whereClause.status = filteredStatus;
@@ -222,7 +220,7 @@ const getAjaxSKUS = async (req, res) => {
 
   const docs = await SKUModel.findAll({
     where: whereClause,
-    order: [[sortField, dir]],
+    order: [["id", "DESC"]],
     offset: start,
     limit: length,
   });
@@ -243,6 +241,151 @@ const getAjaxSKUS = async (req, res) => {
   });
 };
 
+// const uniqueQuantity = async (req, res) => {
+//   const { quantity, exclude_id } = req.query;
+
+//   try {
+//     // Validate required parameter
+//     if (!quantity || quantity.trim() === "") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "quantity is required",
+//         data: {},
+//         isUnique: false,
+//       });
+//     }
+
+//     // Build query conditions
+//     const whereConditions = {
+//       quantity: quantity.trim(),
+//       is_deleted: "0",
+//     };
+
+//     // If exclude_id is provided (for edit mode), exclude that record
+//     if (exclude_id) {
+//       whereConditions.id = {
+//         [Op.ne]: exclude_id, // Assuming you're using Sequelize with Op.ne (not equal)
+//         // For raw SQL: whereConditions.id = { $ne: exclude_id }
+//         // For Mongoose: whereConditions._id = { $ne: exclude_id }
+//       };
+//     }
+
+//     const existing = await SKUModel.findOne({
+//       where: whereConditions,
+//     });
+
+//     if (existing) {
+//       return res.status(200).json({
+//         success: true, // Changed to true since the API call succeeded
+//         message: "quantity already exists",
+//         data: {
+//           existingId: existing.id,
+//           existingName: existing.quantity,
+//         },
+//         isUnique: false,
+//       });
+//     }
+
+//     // Department name is unique
+//     res.status(200).json({
+//       // Changed from 201 to 200
+//       success: true, // Changed to true since the API call succeeded
+//       message: "Quantity is available",
+//       data: {},
+//       isUnique: true,
+//     });
+//   } catch (error) {
+//     console.error("Error checking category uniqueness:", error);
+
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal Server Error",
+//       data: {
+//         error: error.message || error,
+//         // Don't expose sensitive error details in production
+//         ...(process.env.NODE_ENV === "development" && { stack: error.stack }),
+//       },
+//       isUnique: false, // Default to false on error for safety
+//     });
+//   }
+// };
+const uniqueSKU = async (req, res) => {
+  const { quantity, unit, exclude_id } = req.query;
+
+  try {
+    // Validate required parameters
+    if (!quantity || quantity.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: "Quantity is required",
+        data: {},
+        isUnique: false,
+      });
+    }
+
+    if (!unit || unit.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: "Unit is required",
+        data: {},
+        isUnique: false,
+      });
+    }
+
+    // Build query conditions
+    const whereConditions = {
+      quantity: parseFloat(quantity.trim()), // Convert to number for proper comparison
+      unit: unit.trim(),
+      is_deleted: "0"
+    };
+
+    // If exclude_id is provided (for edit mode), exclude that record
+    if (exclude_id) {
+      whereConditions.id = {
+        [Op.ne]: exclude_id
+      };
+    }
+
+    const existing = await SKUModel.findOne({
+      where: whereConditions,
+    });
+
+    if (existing) {
+      return res.status(200).json({
+        success: true,
+        message: "SKU combination already exists",
+        data: { 
+          existingId: existing.id,
+          existingQuantity: existing.quantity,
+          existingUnit: existing.unit,
+          skuCode: existing.sku_code || `${existing.quantity}${existing.unit}`
+        },
+        isUnique: false,
+      });
+    }
+
+    // SKU combination is unique
+    res.status(200).json({
+      success: true,
+      message: "SKU combination is available",
+      data: {},
+      isUnique: true,
+    });
+
+  } catch (error) {
+    console.error('Error checking SKU uniqueness:', error);
+    
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      data: {
+        error: error.message || error,
+        ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+      },
+      isUnique: false,
+    });
+  }
+};
 module.exports = {
   getAllskus,
   getSKUById,
@@ -250,4 +393,5 @@ module.exports = {
   updateSKU,
   getAjaxSKUS,
   deleteSKU,
+  uniqueSKU,
 };

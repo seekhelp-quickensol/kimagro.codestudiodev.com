@@ -8,6 +8,7 @@ const {
   updateCategory,
   deleteCategory,
   getAllCategories,
+  uniqueEnCategory,
 } = require("../controllers/admin/categoryController");
 const {
   categoryValidationRules,
@@ -24,7 +25,7 @@ router.post(
   "/add-category",
   authenticateAdmin,
   upload.single("upload_img"),
-  categoryValidationRules, 
+  categoryValidationRules,
   validateRequest,
   createCategory
 );
@@ -40,7 +41,8 @@ router.delete("/delete-category/:id", authenticateAdmin, deleteCategory);
 
 router.post("/ajax/category-list", getAjaxCategories);
 
-
 router.get("/all-categories", getCategories);
+
+router.get("/check-unique", uniqueEnCategory);
 
 module.exports = router;

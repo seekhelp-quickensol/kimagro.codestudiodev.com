@@ -192,7 +192,7 @@ const getAjaxBanners = async (req, res) => {
 
   const docs = await homeBannerModel.findAll({
     where: whereClause,
-    order: [[sortField, dir]],
+    order: [["id", "DESC"]],
     offset: start,
     limit: length,
   });

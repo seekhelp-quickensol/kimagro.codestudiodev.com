@@ -1,3 +1,10 @@
+import {
+  checkDepartmentNameUnique,
+  checkDesegnationNameUnique,
+  checkEnCategoryNameUnique,
+  checkenglishNameUnique,
+  checkenglishProNameUnique,
+} from "../components/services/serviceApi";
 import * as Yup from "yup";
 // import { ObjectSchema } from "yup";
 
@@ -29,7 +36,9 @@ interface CategoryFormValues {
 }
 
 const categorySchema = (
-  isEdit: boolean
+  isEdit: boolean,
+  currentId: string | null
+
 ): Yup.ObjectSchema<CategoryFormValues> =>
   Yup.object({
     title_english: Yup.string()
@@ -43,6 +52,25 @@ const categorySchema = (
 
       .test("no-leading-space", "First letter cannot be a space", (value) =>
         value ? value[0] !== " " : true
+      )
+      .test(
+        "unique-category-name",
+        "This category name already exists",
+        async function (value) {
+          if (!value || value.trim().length < 2) {
+            return true;
+          }
+
+          try {
+            const isUnique = await checkEnCategoryNameUnique(
+              value.trim(),
+              currentId
+            );
+            return isUnique;
+          } catch (error) {
+            return true;
+          }
+        }
       ),
 
     title_hindi: Yup.string()
@@ -63,26 +91,26 @@ const categorySchema = (
 
     upload_img: (isEdit
       ? Yup.mixed<FileList>()
-          .nullable()
-          .transform((value) => (value === undefined ? null : value))
+        .nullable()
+        .transform((value) => (value === undefined ? null : value))
       : Yup.mixed<FileList>()
-          .required("Upload image is required")
-          .test(
-            "fileType",
-            "Only image files are allowed",
-            (value): value is FileList => {
-              if (!value || value.length === 0) return false;
-              const file = value[0];
-              return (
-                file &&
-                ["image/jpeg", "image/png", "image/jpg"].includes(file.type)
-              );
-            }
-          )
-          .nullable()
-          .transform((value) =>
-            value === undefined ? null : value
-          )) as Yup.Schema<FileList | null>,
+        .required("Upload image is required")
+        .test(
+          "fileType",
+          "Only image files are allowed",
+          (value): value is FileList => {
+            if (!value || value.length === 0) return false;
+            const file = value[0];
+            return (
+              file &&
+              ["image/jpeg", "image/png", "image/jpg"].includes(file.type)
+            );
+          }
+        )
+        .nullable()
+        .transform((value) =>
+          value === undefined ? null : value
+        )) as Yup.Schema<FileList | null>,
   });
 
 // 2. SKU Schema
@@ -93,7 +121,6 @@ interface SKUFormValues {
 
 const SKUSchema: Yup.ObjectSchema<SKUFormValues> = Yup.object({
   quantity: Yup.string().required("Quantity is required"),
-
   unit: Yup.string().required("Unit is required"),
 });
 
@@ -104,7 +131,8 @@ interface MediaFormValues {
   name_hindi: string;
 }
 
-const mediaSchema: Yup.ObjectSchema<MediaFormValues> = Yup.object({
+const mediaSchema = (current_id: string | null): Yup.ObjectSchema<MediaFormValues> => {
+  return Yup.object({
   media_category: Yup.string().required("Media category is required"),
 
   name_english: Yup.string()
@@ -121,6 +149,26 @@ const mediaSchema: Yup.ObjectSchema<MediaFormValues> = Yup.object({
     .matches(/^[A-Za-z\s\-&()'",.]*$/, "Only english characters are allowed")
     .test("no-leading-space", "First letter cannot be a space", (value) =>
       value ? value[0] !== " " : true
+    )
+    .test(
+      "unique-category-name",
+      "This category name already exists",
+      async function (value) {
+        if (!value || value.trim().length < 2) {
+          return true;
+        }
+
+        try {
+          const isUnique = await checkenglishNameUnique(
+            value.trim(),
+            current_id
+
+          );
+          return isUnique;
+        } catch (error) {
+          return true;
+        }
+      }
     ),
 
   name_hindi: Yup.string()
@@ -138,7 +186,8 @@ const mediaSchema: Yup.ObjectSchema<MediaFormValues> = Yup.object({
     .test("no-leading-space", "First letter cannot be a space", (value) =>
       value ? value[0] !== " " : true
     ),
-});
+})
+};
 
 // 4. Banner Schema
 interface BannerFormValues {
@@ -151,7 +200,9 @@ interface BannerFormValues {
   upload_video: FileList | null | undefined;
 }
 
-const bannerSchema = (isEdit: boolean): Yup.ObjectSchema<BannerFormValues> =>
+const bannerSchema = (isEdit: boolean,
+
+): Yup.ObjectSchema<BannerFormValues> =>
   Yup.object({
     title_english: Yup.string()
       .required("Title in hindi is required")
@@ -227,34 +278,34 @@ const bannerSchema = (isEdit: boolean): Yup.ObjectSchema<BannerFormValues> =>
 
     upload_video: isEdit
       ? Yup.mixed<FileList>()
-          .nullable()
-          .transform((value) => (value === undefined ? null : value))
+        .nullable()
+        .transform((value) => (value === undefined ? null : value))
       : Yup.mixed<FileList>()
-          .required("Video is required")
-          .test(
-            "fileType",
-            "Only MP4, MOV, or AVI files are allowed",
-            (value: FileList | null): value is FileList => {
-              if (!value || value.length === 0) return false;
-              const fileType = value[0]?.type;
-              return [
-                "video/mp4",
-                "video/quicktime",
-                "video/x-msvideo",
-              ].includes(fileType);
-            }
-          )
-          .test(
-            "fileSize",
-            "File size must be 10 MB or less",
-            (value: FileList | null): boolean => {
-              if (!value || value.length === 0) return false;
-              const maxSize = 10 * 1024 * 1024;
-              return value[0]?.size <= maxSize;
-            }
-          )
-          .nullable()
-          .transform((value) => (value === undefined ? null : value)),
+        .required("Video is required")
+        .test(
+          "fileType",
+          "Only MP4, MOV, or AVI files are allowed",
+          (value: FileList | null): value is FileList => {
+            if (!value || value.length === 0) return false;
+            const fileType = value[0]?.type;
+            return [
+              "video/mp4",
+              "video/quicktime",
+              "video/x-msvideo",
+            ].includes(fileType);
+          }
+        )
+        .test(
+          "fileSize",
+          "File size must be 10 MB or less",
+          (value: FileList | null): boolean => {
+            if (!value || value.length === 0) return false;
+            const maxSize = 10 * 1024 * 1024;
+            return value[0]?.size <= maxSize;
+          }
+        )
+        .nullable()
+        .transform((value) => (value === undefined ? null : value)),
   });
 
 // 5. Product Schema
@@ -278,7 +329,10 @@ interface ProductFormValues {
   descr_hindi?: string | null;
 }
 
-const productSchema = (isEdit: boolean): Yup.ObjectSchema<ProductFormValues> =>
+const productSchema = (isEdit: boolean,
+  currentId: string | null
+
+): Yup.ObjectSchema<ProductFormValues> =>
   Yup.object({
     product_category_id: Yup.string().required("Product category is required"),
 
@@ -295,6 +349,26 @@ const productSchema = (isEdit: boolean): Yup.ObjectSchema<ProductFormValues> =>
       )
       .test("no-leading-space", "First letter cannot be a space", (value) =>
         value ? value[0] !== " " : true
+      )
+      .test(
+        "unique-product-name",
+        "This product name already exists",
+        async function (value) {
+          if (!value || value.trim().length < 2) {
+            return true;
+          }
+
+          try {
+            const isUnique = await checkenglishProNameUnique(
+              value.trim(),
+              currentId
+
+            );
+            return isUnique;
+          } catch (error) {
+            return true;
+          }
+        }
       ),
 
     product_name_hindi: Yup.string()
@@ -443,95 +517,90 @@ const productSchema = (isEdit: boolean): Yup.ObjectSchema<ProductFormValues> =>
 
     product_img: isEdit
       ? Yup.mixed<FileList>()
-          .nullable()
-          .transform((value) => (value === undefined ? null : value))
+        .nullable()
+        .transform((value) => (value === undefined ? null : value))
       : Yup.mixed<FileList>()
-          .required("Product image is required")
-          .test(
-            "fileType",
-            "Only image files are allowed",
-            (value): value is FileList => {
-              if (!value || value.length === 0) return false;
-              const file = value[0];
-              return (
-                file &&
-                ["image/jpeg", "image/png", "image/jpg"].includes(file.type)
-              );
-            }
-          )
-          .nullable()
-          .transform((value) => (value === undefined ? null : value)),
+        .required("Product image is required")
+        .test(
+          "fileType",
+          "Only image files are allowed",
+          (value): value is FileList => {
+            if (!value || value.length === 0) return false;
+            const file = value[0];
+            return (
+              file &&
+              ["image/jpeg", "image/png", "image/jpg"].includes(file.type)
+            );
+          }
+        )
+        .nullable()
+        .transform((value) => (value === undefined ? null : value)),
 
     upload_multiple_img: isEdit
       ? Yup.mixed<FileList>()
-          .nullable()
-          .transform((value) => (value === undefined ? null : value))
+        .nullable()
+        .transform((value) => (value === undefined ? null : value))
       : Yup.mixed<FileList>()
-          .required("Product image is required")
-          .test("fileType", "Only image files are allowed", (value) => {
-            if (!value || value.length === 0) return false;
-            for (let i = 0; i < value.length; i++) {
-              if (
-                !["image/jpeg", "image/png", "image/jpg"].includes(
-                  value[i].type
-                )
-              ) {
-                return false;
-              }
+        .required("Product image is required")
+        .test("fileType", "Only image files are allowed", (value) => {
+          if (!value || value.length === 0) return false;
+          for (let i = 0; i < value.length; i++) {
+            if (
+              !["image/jpeg", "image/png", "image/jpg"].includes(
+                value[i].type
+              )
+            ) {
+              return false;
             }
-            return true;
-          })
-          .nullable()
-          .transform((value) => (value === undefined ? null : value)),
+          }
+          return true;
+        })
+        .nullable()
+        .transform((value) => (value === undefined ? null : value)),
 
     upload_brouch_english: isEdit
       ? Yup.mixed<FileList>()
-          .nullable()
-          .transform((value) => (value === undefined ? null : value))
+        .nullable()
+        .transform((value) => (value === undefined ? null : value))
       : Yup.mixed<FileList>()
-          .required("Brochure in english is required")
-          .test(
-            "fileType",
-            "Only PDF, DOC, or DOCX files are allowed",
-            (value) => {
-              if (!value || value.length === 0) return false;
-              return [
-                "application/pdf",
-                "application/msword",
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-              ].includes(value[0]?.type);
-            }
-          )
-          .nullable()
-          .transform((value) => (value === undefined ? null : value)),
+        .required("Brochure in english is required")
+        .test(
+          "fileType",
+          "Only PDF, DOC, or DOCX files are allowed",
+          (value) => {
+            if (!value || value.length === 0) return false;
+            return [
+              "application/pdf",
+              "application/msword",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ].includes(value[0]?.type);
+          }
+        )
+        .nullable()
+        .transform((value) => (value === undefined ? null : value)),
 
     upload_brouch_hindi: isEdit
       ? Yup.mixed<FileList>()
-          .nullable()
-          .transform((value) => (value === undefined ? null : value))
+        .nullable()
+        .transform((value) => (value === undefined ? null : value))
       : Yup.mixed<FileList>()
-          .required("Brochure in hindi is required")
-          .test(
-            "fileType",
-            "Only PDF, DOC, or DOCX files are allowed",
-            (value) => {
-              if (!value || value.length === 0) return false;
-              return [
-                "application/pdf",
-                "application/msword",
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-              ].includes(value[0]?.type);
-            }
-          )
-          .nullable()
-          .transform((value) => (value === undefined ? null : value)),
-    descr_english: Yup.string()
-      .required("Description in english is required")
-       ,
-
-    descr_hindi: Yup.string()
-      .required("Description in hindi is required")
-       ,
+        .required("Brochure in hindi is required")
+        .test(
+          "fileType",
+          "Only PDF, DOC, or DOCX files are allowed",
+          (value) => {
+            if (!value || value.length === 0) return false;
+            return [
+              "application/pdf",
+              "application/msword",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ].includes(value[0]?.type);
+          }
+        )
+        .nullable()
+        .transform((value) => (value === undefined ? null : value)),
+    descr_english: Yup.string().required("Description in english is required"),
+    descr_hindi: Yup.string().required("Description in hindi is required"),
   });
 
 interface innovationValues {
@@ -543,49 +612,50 @@ interface innovationValues {
   descr_hindi?: string | null;
 }
 const innovationSchema = (
-  isEdit: boolean
+  isEdit: boolean,
+
 ): Yup.ObjectSchema<innovationValues> =>
   Yup.object({
     upload_icon: isEdit
       ? Yup.mixed<FileList>()
-          .nullable()
-          .transform((value) => (value === undefined ? null : value))
+        .nullable()
+        .transform((value) => (value === undefined ? null : value))
       : Yup.mixed<FileList>()
-          .required("Upload icon is required")
-          .test(
-            "fileType",
-            "Only image files are allowed",
-            (value): value is FileList => {
-              if (!value || value.length === 0) return false;
-              const file = value[0];
-              return (
-                file &&
-                ["image/jpeg", "image/png", "image/jpg"].includes(file.type)
-              );
-            }
-          )
-          .nullable()
-          .transform((value) => (value === undefined ? null : value)),
+        .required("Upload icon is required")
+        .test(
+          "fileType",
+          "Only image files are allowed",
+          (value): value is FileList => {
+            if (!value || value.length === 0) return false;
+            const file = value[0];
+            return (
+              file &&
+              ["image/jpeg", "image/png", "image/jpg"].includes(file.type)
+            );
+          }
+        )
+        .nullable()
+        .transform((value) => (value === undefined ? null : value)),
     upload_img: isEdit
       ? Yup.mixed<FileList>()
-          .nullable()
-          .transform((value) => (value === undefined ? null : value))
+        .nullable()
+        .transform((value) => (value === undefined ? null : value))
       : Yup.mixed<FileList>()
-          .required("Upload image is required")
-          .test(
-            "fileType",
-            "Only image files are allowed",
-            (value): value is FileList => {
-              if (!value || value.length === 0) return false;
-              const file = value[0];
-              return (
-                file &&
-                ["image/jpeg", "image/png", "image/jpg"].includes(file.type)
-              );
-            }
-          )
-          .nullable()
-          .transform((value) => (value === undefined ? null : value)),
+        .required("Upload image is required")
+        .test(
+          "fileType",
+          "Only image files are allowed",
+          (value): value is FileList => {
+            if (!value || value.length === 0) return false;
+            const file = value[0];
+            return (
+              file &&
+              ["image/jpeg", "image/png", "image/jpg"].includes(file.type)
+            );
+          }
+        )
+        .nullable()
+        .transform((value) => (value === undefined ? null : value)),
 
     bio_balance_eng: Yup.string()
       .trim()
@@ -640,7 +710,8 @@ interface mediaModuleValues {
 // });
 
 const mediaModuleSchema = (
-  isEdit: boolean
+  isEdit: boolean,
+
 ): Yup.ObjectSchema<mediaModuleValues> =>
   Yup.object({
     media_type: Yup.string().required("Media type is required"),
@@ -843,45 +914,67 @@ type departmentValues = {
   department_name: string;
 };
 
-const departmentSchema = Yup.object().shape({
-  department_name: Yup.string()
-    .required("Department name is required")
+const departmentSchema = (currentId: string | null = null) => {
+  return Yup.object().shape({
+    department_name: Yup.string()
+      .required("Department name is required")
 
-    .max(200, "Department name cannot exceed 200 characters")
-    .test(
-      "no-digits",
-      "Department name should not contain any digits",
-      (value) => {
-        if (!value) return true;
-        return !/\p{Nd}/u.test(value);
-      }
-    )
-    .test(
-      "no-special-characters",
-      "Special characters are not allowed",
-      (value) => {
-        if (!value) return true;
-        return /^[A-Za-z\u0900-\u097F\s0-9]*$/.test(value);
-      }
-    )
-    .test(
-      "only-english-letters-spaces",
-      "Only english letters are allowed",
-      (value) => {
-        if (!value) return true;
-        return /^[A-Za-z\s]*$/.test(value);
-      }
-    )
-    .test("no-leading-space", "First letter cannot be a space", (value) =>
-      value ? value[0] !== " " : true
-    ),
-});
+      .max(200, "Department name cannot exceed 200 characters")
+      .test(
+        "no-digits",
+        "Department name should not contain any digits",
+        (value) => {
+          if (!value) return true;
+          return !/\p{Nd}/u.test(value);
+        }
+      )
+      .test(
+        "no-special-characters",
+        "Special characters are not allowed",
+        (value) => {
+          if (!value) return true;
+          return /^[A-Za-z\u0900-\u097F\s0-9]*$/.test(value);
+        }
+      )
+      .test(
+        "only-english-letters-spaces",
+        "Only english letters are allowed",
+        (value) => {
+          if (!value) return true;
+          return /^[A-Za-z\s]*$/.test(value);
+        }
+      )
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? value[0] !== " " : true
+      )
+      .test(
+        "unique-department-name",
+        "This department name already exists",
+        async function (value) {
+          if (!value || value.trim().length < 2) {
+            return true;
+          }
+
+          try {
+            const isUnique = await checkDepartmentNameUnique(
+              value.trim(),
+              currentId
+            );
+            return isUnique;
+          } catch (error) {
+            return true;
+          }
+        }
+      ),
+  });
+}
 
 type designationValues = {
   designation_name: string;
 };
 
-const designationSchema = Yup.object().shape({
+const designationSchema = (currentId: string | null = null) => {
+  return Yup.object().shape({
   designation_name: Yup.string()
     .required("Designation name is required")
 
@@ -912,8 +1005,28 @@ const designationSchema = Yup.object().shape({
     )
     .test("no-leading-space", "First letter cannot be a space", (value) =>
       value ? value[0] !== " " : true
+    )
+    .test(
+      "unique-designation-name",
+      "This designation name already exists",
+      async function (value) {
+        if (!value || value.trim().length < 2) {
+          return true;
+        }
+
+        try {
+          const isUnique = await checkDesegnationNameUnique(
+            value.trim(),
+            currentId
+          );
+          return isUnique;
+        } catch (error) {
+          return true;
+        }
+      }
     ),
 });
+}
 
 const contactValidationRules = {
   name: Yup.string().trim().required("Name is required"),

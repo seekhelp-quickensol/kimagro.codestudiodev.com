@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ComponentCard from "./../common/ComponentCard";
 import Label from "../form/Label";
-import { submitDesignationForm } from "../../components/services/serviceApi";
+import {
+  checkDesegnationNameUnique,
+  submitDesignationForm,
+} from "../../components/services/serviceApi";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { designationSchema } from "../../validations/validationSchema";
+import { useUniqueValidation } from "../../hooks/useUniqueValidation";
 
 import DesignationList from "./DesignationList";
 import NewInput from "../../components/form/input/NewInputField";
@@ -15,26 +19,83 @@ import toast from "react-hot-toast";
 
 export default function DesignationMaster() {
   const { id } = useParams();
- 
+
   const navigator = useNavigate();
   const [refresh, setRefresh] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(designationSchema),
+    resolver: yupResolver(designationSchema(id || null)),
     defaultValues: {
       designation_name: "",
     },
+    mode: "onChange",
   });
 
-  const {title} = useDesignationById(reset);
+  const { title } = useDesignationById(reset);
+  const designationName = watch("designation_name");
+
+  const { validateUnique, isValidating, isUnique, resetValidation } =
+    useUniqueValidation({
+      checkUnique: checkDesegnationNameUnique,
+      debounceMs: 300,
+      minLength: 2,
+      errorMessage: "This designation name already exists",
+      currentId: id || null,
+    });
+  useEffect(() => {
+    resetValidation();
+  }, [id, resetValidation]);
+
+  useEffect(() => {
+    if (designationName && designationName.trim().length >= 2) {
+      validateUnique(designationName);
+    } else {
+      resetValidation();
+    }
+  }, [designationName, validateUnique, resetValidation]);
+  const getInputState = () => {
+    if (isValidating) return "loading";
+    if (errors.designation_name) return "error";
+    if (isUnique === false) return "error";
+    if (
+      isUnique === true &&
+      designationName &&
+      designationName.trim().length >= 2
+    )
+      return "success";
+    return "default";
+  };
+
+  const getInputHint = () => {
+    if (isValidating) return "Checking availability...";
+    if (errors.designation_name) return undefined;
+    if (isUnique === false) return "This designation name is already taken";
+    if (
+      isUnique === true &&
+      designationName &&
+      designationName.trim().length >= 2
+    ) {
+      return "Designation name is available";
+    }
+    return "";
+  };
 
   const onSubmit = async (data: any) => {
     //  setLoading(true);
     try {
+      const isNameUnique = await checkDesegnationNameUnique(
+        data.designation_name.trim(),
+        id || null
+      );
+
+      if (!isNameUnique) {
+        return;
+      }
       const formData = new FormData();
       formData.append("designation_name", data.designation_name);
       const method = id ? "put" : "post";
@@ -44,17 +105,16 @@ export default function DesignationMaster() {
         method
       );
       const { success, message } = response.data;
-      success ? toast.success(`${message}`) : toast.error( `${message}`);
+      success ? toast.success(`${message}`) : toast.error(`${message}`);
 
       if (success) {
         reset({
           designation_name: "",
         });
-        
+
         navigator("/designation-master");
         setRefresh(!refresh);
-      }
-      else{
+      } else {
         toast.error(`Error: ${message}`);
       }
     } catch (err) {
@@ -70,7 +130,6 @@ export default function DesignationMaster() {
       reset();
       console.log(`Error: ${msg}`);
     } finally {
-     
       // setLoading(false);
     }
   };
@@ -84,7 +143,7 @@ export default function DesignationMaster() {
             {/* Designation Name */}
             <div className="col-span-12 md:col-span-6">
               <Label>
-                Designation Name{" "}<span className="text-red-500">*</span>
+                Designation Name <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="designation_name"
@@ -93,6 +152,8 @@ export default function DesignationMaster() {
                 className="w-full"
                 register={register}
                 errors={errors}
+                success={getInputState() === "success"}
+                hint={getInputHint()}
               />
             </div>
 
@@ -110,11 +171,7 @@ export default function DesignationMaster() {
 
       {/* Table */}
       <div className="p-4 bg-white rounded-xl shadow">
-        <DesignationList
-          refresh={refresh}
-          setRefresh={setRefresh}
-       
-        />
+        <DesignationList refresh={refresh} setRefresh={setRefresh} />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { persistor } from "../../features/auth/store";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../features/auth/store";
 import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 // type SignOutButtonProps = {
 //   isExpanded: boolean;
@@ -28,6 +29,7 @@ const SignOutButton = ({ isExpanded = true }) => {
         dispatch(adminLogOut()).then(() => {
           persistor.purge();
         });
+        toast("Log Out Successfully.")
       }
     } catch (error) {
       console.log(error);

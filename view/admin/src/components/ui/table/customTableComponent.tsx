@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import DataTable, { TableColumn, SortOrder } from "react-data-table-component";
+import DataTable, { TableColumn, SortOrder, TableStyles } from "react-data-table-component";
 import instance from "../../../utils/axiosInstance";
 // import Alert from "components/Alert";
 
@@ -33,6 +33,7 @@ interface CustomDataTableProps {
   refresh?: boolean | number;
   message?: string;
  search?: boolean;
+ 
   // filterdata?: any[];
 }
 
@@ -56,6 +57,23 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
   const [orderDirection, setOrderDirection] = useState<string>("DESC");
   const [orderColumn, setOrderColumn] = useState<number>(0);
 
+  const customStyles: TableStyles = {
+    headCells: {
+      style: {
+        justifyContent: "center",
+        textAlign: "center" as "center", // 👈 cast to valid TextAlign type
+      },
+    },
+    cells: {
+      style: {
+        justifyContent: "center",
+        textAlign: "center" as "center", // 👈 cast to valid TextAlign type
+      },
+    },
+  };
+  
+  
+  
   const fetchItems = useCallback(
     async (
       page: number,
@@ -157,6 +175,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
           onChangePage={handlePageChange}
           sortServer
           onSort={handleSort}
+          customStyles={customStyles}
         />
       </div>
     </div>

@@ -9,7 +9,7 @@ export default function Innovation() {
 
   const { innovations } = useInnovations();
 
-  
+
   const currentLang = i18n.language;
 
   return (
@@ -36,13 +36,13 @@ export default function Innovation() {
             <h3 className="font-semibold md:text-base lg:text-2xl">
 
               <Trans i18nKey="innovationPage.HeroSection.title" />
-          
+
               <span className="font-bold lg:text-2xl">{t("innovationPage.HeroSection.subtitle")}</span>
             </h3>
 
             <p className="mt-4 text-sm md:text-lg leading-relaxed">
-            <Trans i18nKey="innovationPage.HeroSection.description" />
-             
+              <Trans i18nKey="innovationPage.HeroSection.description" />
+
             </p>
           </div>
         </div>
@@ -56,11 +56,11 @@ export default function Innovation() {
           <div className=" mx-auto text-left md:text-center">
             <p className="text-sm md:text-base">
               {t("innovationPage.keySection.description")}
-              
+
             </p>
 
             <h4 className="mt-4 font-bold text-base md:text-lg lg:text-2xl">
-            {t("innovationPage.keySection.title")}
+              {t("innovationPage.keySection.title")}
             </h4>
 
             {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12">
@@ -105,23 +105,30 @@ export default function Innovation() {
             </div> */}
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12">
-              {innovations && innovations.map((innovation, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center cursor-pointer"
-                  onClick={() => navigate(`/innovation-details/${innovation.id}`)}
-                >
-                  <img
-                    src={`${import.meta.env.VITE_APP_BACKEND}uploads/images/${innovation.upload_icon}`}
-                    alt={currentLang === 'hi' ? innovation.bio_balance_hindi : innovation.bio_balance_eng}
-                    className="w-20 md:w-28 rounded-lg"
-                  />
-                  {/* <p className="mt-2 font-semibold text-green-800">
-                    {currentLang === 'hi' ? innovation.bio_balance_hindi : innovation.bio_balance_eng}
-                  </p> */}
-                </div>
-              ))}
-          </div>
+              {innovations && innovations.length > 0 ? (
+                innovations.map((innovation, index) =>
+                (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center cursor-pointer"
+                    onClick={() => navigate(`/innovation-details/${innovation.id}`)}
+                  >
+                    <img
+                      src={`${import.meta.env.VITE_APP_BACKEND}uploads/images/${innovation.upload_icon}`}
+                      alt={currentLang === 'hi' ? innovation.bio_balance_hindi : innovation.bio_balance_eng}
+                      className="w-20 md:w-28 rounded-lg"
+                    />
+
+                  </div>
+                )
+                ))
+                : <div className="col-span-2 md:col-span-4 flex justify-center items-center">
+                <img src={'assets/images/noproduct.png'} alt="No innovation found" className="object-contain  h-60" />
+              </div>
+          
+              }
+
+            </div>
           </div>
         </div>
       </section>

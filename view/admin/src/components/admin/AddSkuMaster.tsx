@@ -2,13 +2,18 @@ import { useState, useEffect } from "react";
 import ComponentCard from "./../common/ComponentCard";
 import Label from "../form/Label";
 import { SKUSchema } from "../../validations/validationSchema";
-import { getSKUById, submitSKUForm } from "../services/serviceApi";
+import {
+  getSKUById,
+  submitSKUForm,
+  checkeQuantityUnique,
+} from "../services/serviceApi";
 import Modal from "react-modal";
 import NewInput from "../form/input/NewInputField";
 import ControlledSelect from "../form/ControlledSelect";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate, useParams } from "react-router-dom";
+import { useUniqueValidation } from "../../hooks/useUniqueValidation";
 import SKUList from "./SKUList";
 import toast from "react-hot-toast";
 
@@ -37,6 +42,7 @@ export default function SkuPage() {
   const {
     register,
     handleSubmit,
+    watch,
     control,
     formState: { errors },
     reset,
@@ -51,8 +57,82 @@ export default function SkuPage() {
     });
   };
 
+  const quantityInput = watch("quantity");
+  const unitInput = watch("unit");
+  const checkQuantityUnitUnique = async (quantity: string, currentId: string | null = null): Promise<boolean> => {
+    try {
+      // Get current unit value
+      const currentUnit = unitInput || "";
+      // Skip validation if either quantity or unit is missing
+      if (!quantity || !currentUnit) {
+        return true;
+      }
+      // Call your API with both quantity and unit
+      return await checkeQuantityUnique(quantity.trim(), currentUnit, currentId);
+    } catch (error) {
+      console.error('Error checking SKU uniqueness:', error);
+      return true;
+    }
+  };
+
+  const { validateUnique, isValidating, isUnique, resetValidation } =
+    useUniqueValidation({
+      checkUnique: checkQuantityUnitUnique,
+      debounceMs: 300,
+      minLength: 2,
+      errorMessage: "This quantity is already added",
+      currentId: id || null,
+      
+    });
+  
+  useEffect(() => {
+    resetValidation();
+  }, [id, resetValidation]);
+
+  // Validate when either quantity or unit changes
+  useEffect(() => {
+    if (quantityInput && quantityInput.trim().length >= 1 && unitInput) {
+      validateUnique(quantityInput);
+    } else {
+      resetValidation();
+    }
+  }, [quantityInput, unitInput, validateUnique, resetValidation]);
+
+  const getInputState = () => {
+    if (isValidating) return "loading";
+    if (errors.quantity) return "error";
+    if (isUnique === false) return "error";
+    if (isUnique === true && quantityInput && quantityInput.trim().length >= 1 && unitInput)
+      return "success";
+    return "default";
+  };
+
+  const getInputHint = () => {
+    if (isValidating) return "Checking availability...";
+    if (errors.quantity) return undefined;
+    if (isUnique === false) return "This quantity and unit combination already exists";
+    if (isUnique === true && quantityInput && quantityInput.trim().length >= 1 && unitInput) {
+      return "SKU combination is available";
+    }
+    return "";
+  };
+  useEffect(() => {
+    if (quantityInput && quantityInput.trim().length >= 1 && unitInput) {
+      resetValidation();
+      setTimeout(() => {
+        validateUnique(quantityInput);
+      }, 10);
+    }
+  }, [unitInput]);
+
   const onSubmit = async (data: SKUFormValues) => {
     try {
+      const isUnique = await checkQuantityUnitUnique(data.quantity.trim(), id || null);
+      
+      if (!isUnique) {
+        return;
+      }
+
       const formData = new FormData();
       formData.append("quantity", data.quantity);
       formData.append("unit", data.unit);
@@ -124,7 +204,10 @@ export default function SkuPage() {
                 register={register}
                 errors={errors}
                 min={0}
+                success={getInputState() === "success"}
+                hint={getInputHint()}
               />
+              
             </div>
             <div className="col-span-12 md:col-span-6 relative">
               <Label>

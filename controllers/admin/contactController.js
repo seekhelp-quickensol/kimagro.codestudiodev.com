@@ -81,7 +81,7 @@ const getAjaxContact = async (req, res) => {
 
   const docs = await contactFormModel.findAll({
     where: whereClause,
-    order: [[sortField, dir]],
+    order: [["id", "DESC"]],
     offset: start,
     limit: length,
   });
