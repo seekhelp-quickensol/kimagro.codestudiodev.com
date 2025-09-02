@@ -6,6 +6,7 @@ const {
   getUserById,
   updateUser,
   getAjaxUser,
+  uniqueEmail,
 } = require("../controllers/admin/userController");
 const {
   userValidationRules,
@@ -31,5 +32,7 @@ router.put(
 router.get("/get-user/:id", getUserById);
 
 router.post("/ajax/user-list", getAjaxUser);
+
+ router.get("/check-unique",uniqueEmail);
 
 module.exports = router;

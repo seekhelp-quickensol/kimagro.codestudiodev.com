@@ -69,7 +69,7 @@ const getCategoryById = async (req, res) => {
 };
 
 const createCategory = async (req, res) => {
-  const { title_english, title_hindi } = req.body;
+  const { title_english } = req.body;
 
   try {
     const existing = await categoryModel.findOne({
@@ -84,17 +84,17 @@ const createCategory = async (req, res) => {
       });
     }
 
-    const existingHi = await categoryModel.findOne({
-      where: { title_hindi, is_deleted: "0" },
-    });
+    // const existingHi = await categoryModel.findOne({
+    //   where: { title_hindi, is_deleted: "0" },
+    // });
 
-    if (existingHi) {
-      return res.status(200).json({
-        success: false,
-        message: "Category in hindi already exists",
-        data: {},
-      });
-    }
+    // if (existingHi) {
+    //   return res.status(200).json({
+    //     success: false,
+    //     message: "Category in hindi already exists",
+    //     data: {},
+    //   });
+    // }
 
     const newCategory = await categoryModel.create({
       ...req.body,

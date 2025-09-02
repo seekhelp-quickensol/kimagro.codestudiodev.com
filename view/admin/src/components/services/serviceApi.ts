@@ -137,7 +137,7 @@ export const getAllSKUS = (): Promise<AxiosResponse<SKUApiResponse>> =>
   axios.get("/api/skus/skus");
 
 export const getAllSKUSOption = (): Promise<AxiosResponse<SKUApiResponse>> =>
-  instance.get("/api/skus/skus");
+  instance.get("/api/skus/units");
 
 export const getAllCategoryOption = (): Promise<
   AxiosResponse<SKUApiResponse>
@@ -478,18 +478,27 @@ export const checkenglishNameUnique = async (
 
 export const checkenglishProNameUnique = async (
   productEnName: string,
-  excludeId: string | null = null
+  excludeId: string | null = null,
+  selectedCategoryId: string | null = null
 ): Promise<boolean> => {
   try {
     if (!productEnName || productEnName.trim().length === 0) {
-      return true; // Empty names are handled by form validation
+      return true; 
     }
     const params = new URLSearchParams({
       product_name_english: productEnName.trim(),
+      ...(excludeId && { exclude_id: excludeId }),
+      ...(selectedCategoryId && { selectedCategoryId }),
     });
+
     if (excludeId) {
       params.append("exclude_id", excludeId);
     }
+    // if (selectedCategoryId) {
+    //   params.append("selectedCategoryId", selectedCategoryId);
+    // }
+
+    // console.log("selectedCategoryId", selectedCategoryId);
     const response = await instance({
       method: "GET",
       headers: {
@@ -513,7 +522,7 @@ export const checkenglishProNameUnique = async (
 
 export const checkeQuantityUnique = async (
   quantityInput: string,
-  unit: string = '',
+  unit: string = "",
   excludeId: string | null = null
 ): Promise<boolean> => {
   try {
@@ -522,7 +531,7 @@ export const checkeQuantityUnique = async (
     }
     const params = new URLSearchParams({
       quantity: quantityInput.trim(),
-      unit: unit
+      unit: unit,
     });
     if (excludeId) {
       params.append("exclude_id", excludeId);
@@ -543,6 +552,41 @@ export const checkeQuantityUnique = async (
     return data.isUnique || false;
   } catch (error) {
     console.error("Error checking quantity uniqueness:", error);
+    // Return true on error to avoid blocking form submission
+    return true;
+  }
+};
+
+export const checkEmailIdUnique = async (
+  emailId: string,
+  excludeId: string | null = null
+): Promise<boolean> => {
+  try {
+    if (!emailId || emailId.trim().length === 0) {
+      return true; // Empty names are handled by form validation
+    }
+    const params = new URLSearchParams({
+      email: emailId.trim(),
+    });
+    if (excludeId) {
+      params.append("exclude_id", excludeId);
+    }
+    const response = await instance({
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      url: `/api/user/check-unique?${params}`,
+    });
+
+    if (!response.data) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.data;
+    return data.isUnique || false;
+  } catch (error) {
+    console.error("Error checking department name uniqueness:", error);
     // Return true on error to avoid blocking form submission
     return true;
   }

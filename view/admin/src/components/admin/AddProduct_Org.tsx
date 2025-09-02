@@ -4,10 +4,7 @@ import $ from "jquery";
 import "summernote/dist/summernote-lite.css";
 import "summernote/dist/summernote-lite.js";
 import TagInput from "../form/TagInput";
-import ComponentCard from "./../common/ComponentCard";
-import Label from "../form/Label";
-import toast from "react-hot-toast";
-import MultiSelect from "../../components/form/ControllerdMutiSelect";
+
 import { Link } from "react-router-dom";
 import NewInput from "../form/input/NewInputField";
 
@@ -59,7 +56,10 @@ interface Product {
   upload_multiple_img?: FileList | null | undefined;
 }
 
-
+import ComponentCard from "./../common/ComponentCard";
+import Label from "../form/Label";
+import toast from "react-hot-toast";
+import MultiSelect from "../../components/form/ControllerdMutiSelect";
 
 export default function ProductForm() {
   const [categoryOptions, setCategoryOptions] = useState<
@@ -95,7 +95,7 @@ export default function ProductForm() {
         const transformed = categories.map((cat) => ({
           value: String(cat.id),
           label: cat.title_english,
-        }));  
+        }));
         setCategoryOptions(transformed);
       } catch (error) {
         console.error("Failed to fetch categories", error);
@@ -115,40 +115,18 @@ export default function ProductForm() {
         }));
         setSKUOptions(transformed);
       } catch (error) {
-        console.error("Failed to fetch SKUs", error);
+        console.error("Failed to fetch categories", error);
       }
     };
     fetchskus();
   }, []);
 
-  // FIXED: Improved file selection handler
   const fileSelectedHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
-      
-      // Validate file types
-      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-      const validFiles = fileArray.filter(file => {
-        if (!allowedTypes.includes(file.type)) {
-          toast.error(`Invalid file type: ${file.name}. Only PNG, JPEG, JPG are allowed.`);
-          return false;
-        }
-        // Optional: Check file size (5MB limit)
-        if (file.size > 5 * 1024 * 1024) {
-          toast.error(`File too large: ${file.name}. Maximum size is 5MB.`);
-          return false;
-        }
-        return true;
-      });
-
-      if (validFiles.length > 0) {
-        setImageArray((prev) => [...prev, ...validFiles]);
-        console.log("Valid files added:", validFiles);
-      }
-      
-      // Reset the input value to allow selecting the same files again
-      e.target.value = '';
+      setImageArray((prev) => [...prev, ...fileArray]);
+      console.log(fileArray);
     }
   };
 
@@ -161,11 +139,13 @@ export default function ProductForm() {
     getValues,
     formState: { errors, isSubmitting },
     reset,
+
   } = useForm({
     resolver: yupResolver(
       productSchema(isEdit, id || null, selectedCategoryId)
     ),
   });
+
 
   const resetForm = () => {
     reset({
@@ -189,9 +169,6 @@ export default function ProductForm() {
     setImagePreview("");
     setEnBrouchPreview("");
     setHiBrouchPreview("");
-    // FIXED: Reset image arrays as well
-    setMultipleImagePreview([]);
-    setImageArray([]);
   };
 
   const productEnName = watch("product_name_english");
@@ -205,7 +182,6 @@ export default function ProductForm() {
       currentId: id || null,
       selectedCategoryId,
     });
-  
   useEffect(() => {
     resetValidation();
   }, [id, resetValidation]);
@@ -248,13 +224,6 @@ export default function ProductForm() {
   const onSubmit = async (data: Product) => {
     setLoading(true);
     try {
-      // FIXED: Add validation for multiple images using imageArray state
-      if (!isEdit && imageArray.length === 0) {
-        toast.error("At least one product image is required");
-        setLoading(false);
-        return;
-      }
-
       const isNameUnique = await checkenglishProNameUnique(
         data.product_name_english.trim(),
         id || null,
@@ -262,7 +231,6 @@ export default function ProductForm() {
       );
 
       if (!isNameUnique) {
-        setLoading(false);
         return;
       }
 
@@ -292,13 +260,9 @@ export default function ProductForm() {
         );
       }
 
-      // FIXED: Properly append multiple images
-      if (imageArray.length > 0) {
-        imageArray.forEach((file, index) => {
-          formData.append("upload_multiple_img", file);
-          console.log(`Appending image ${index}:`, file.name, file.size);
-        });
-      }
+      imageArray.forEach((file) => {
+        formData.append("upload_multiple_img", file);
+      });
 
       const englishDescription = getValues("descr_english");
       const hindiDescription = getValues("descr_hindi");
@@ -310,11 +274,11 @@ export default function ProductForm() {
         formData.append("product_img", data.product_img[0]);
       }
 
-      // Debug: Log FormData contents
-      console.log("FormData contents:");
       for (let [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
+
+      console.log(formData);
 
       const method = id ? "put" : "post";
       const response = await submitProductForm(id ?? null, formData, method);
@@ -337,8 +301,9 @@ export default function ProductForm() {
         msg = axiosErr.response?.data?.message || msg;
       }
 
+      resetForm();
       toast.error(`Error: ${msg}`);
-      console.error("Submit error:", err);
+      console.log(msg);
     } finally {
       setLoading(false);
     }
@@ -391,22 +356,21 @@ export default function ProductForm() {
             descr_hindi: data.descr_hindi,
           });
 
-          // Set selected category for validation
-          setSelectedCategoryId(data.product_category_id);
-
           (window.setTimeout as typeof setTimeout)(() => {
             $("#descr_english").summernote("code", data.descr_english || "");
             $("#descr_hindi").summernote("code", data.descr_hindi || "");
           }, 200);
-          
           setImagePreview(
-            `${import.meta.env.VITE_APP_API_URL}/uploads/images/${data.product_img}`
+            `${import.meta.env.VITE_APP_API_URL}/uploads/images/${data.product_img
+            }`
           );
           setEnBrouchPreview(
-            `${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${data.upload_brouch_english}`
+            `${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${data.upload_brouch_english
+            }`
           );
           setHiBrouchPreview(
-            `${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${data.upload_brouch_hindi}`
+            `${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${data.upload_brouch_hindi
+            }`
           );
         })
         .catch(() => toast.error("Error fetching product data"));
@@ -461,52 +425,28 @@ export default function ProductForm() {
 
   const handleDeleteServerImage = (imgName: string) => {
     const updated = multipleImagePreview.filter((img) => img !== imgName);
-    console.log("Deleting server image:", imgName);
+    console.log("server", imgName);
     setMultipleImagePreview(updated);
   };
 
   const handleDeleteNewImage = (index: number) => {
     setImageArray((prevImages) => {
       const updatedImages = [...prevImages];
-      // FIXED: Clean up object URL to prevent memory leaks
-      const fileToDelete = updatedImages[index];
-      if (fileToDelete) {
-        // Revoke the object URL if it was created
-        const objectUrls = document.querySelectorAll('img[src^="blob:"]');
-        objectUrls.forEach((img) => {
-          const src = (img as HTMLImageElement).src;
-          if (src.includes(fileToDelete.name)) {
-            URL.revokeObjectURL(src);
-          }
-        });
-      }
-      
       updatedImages.splice(index, 1);
-      console.log("Deleted image at index:", index, "Remaining images:", updatedImages.length);
+      console.log("uploaded:", index, updatedImages);
       return updatedImages;
     });
   };
 
+
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
-    // FIXED: Reset product name and validation when category changes
-    setValue("product_name_english", "");
-    resetValidation();
+    reset({
+      product_name_english: "",
+    });
     setSelectedCategoryId(selectedId);
   };
 
-  // FIXED: Cleanup object URLs on component unmount
-  useEffect(() => {
-    return () => {
-      // Cleanup all object URLs when component unmounts
-      imageArray.forEach(() => {
-        const objectUrls = document.querySelectorAll('img[src^="blob:"]');
-        objectUrls.forEach((img) => {
-          URL.revokeObjectURL((img as HTMLImageElement).src);
-        });
-      });
-    };
-  }, []);
 
   return (
     <ComponentCard title={title}>
@@ -557,6 +497,10 @@ export default function ProductForm() {
                 <path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"></path>
               </svg>
             </div>
+
+            {/* <div className="pointer-events-none absolute right-4 top-10 flex items-center text-gray-500">
+              ▼
+            </div> */}
 
             {typeof errors.product_category_id?.message === "string" && (
               <p className="error">{errors.product_category_id.message}</p>
@@ -676,6 +620,7 @@ export default function ProductForm() {
           </div>
 
           {/* SKU */}
+
           <div className="col-span-12 md:col-span-4">
             <Label>
               SKU <span className="text-red-500">*</span>
@@ -692,116 +637,92 @@ export default function ProductForm() {
               </p>
             )}
           </div>
-          
-            {/* FIXED: Multiple Images Upload Section */}
-          <div className="col-span-12 md:col-span-8">
-            <Label>
-              Product Multiple Images <span className="text-red-500">*</span>
-              <span className="text-red-500">
-                ( Recommended : PNG, JPEG, JPG | 297 × 579 px )
-              </span>
-            </Label>
-            
+          <div className="col-span-12 md:col-span-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              <Label>
+                Product Multiple Images <span className="text-red-500">*</span>
+                <span className="text-red-500">
+                  ( Recommended : PNG, JPEG, JPG | 297 × 579 px )
+                </span>
+                <div className="flex gap-2 flex-wrap mt-2">
+                  {/* Server images */}
+                  {multipleImagePreview.map((img) => {
+                    const imageUrl = `${import.meta.env.VITE_APP_API_URL
+                      }/uploads/images/${img}`;
+                    return (
+                      <div
+                        key={`server-${img}`}
+                        className="relative flex items-center gap-1">
+                        <Link
+                          to={imageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer">
+                          <img
+                            src={imageUrl}
+                            alt="preview"
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                        </Link>
+                        <button
+                          type="button"
+                          className="bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center ml-1"
+                          onClick={() => handleDeleteServerImage(img)}
+                          title="Delete image">
+                          ✖
+                        </button>
+                      </div>
+                    );
+                  })}
+
+                  {/* Local images */}
+                  {imageArray.map((file, i) => {
+                    const previewUrl = URL.createObjectURL(file);
+                    return (
+                      <div
+                        key={`new-${i}`}
+                        className="relative flex items-center gap-1">
+                        <Link
+                          to={previewUrl}
+                          target="_blank"
+                          rel="noopener noreferrer">
+                          <img
+                            src={previewUrl}
+                            alt="new preview"
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                        </Link>
+                        <button
+                          type="button"
+                          className="bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center ml-1"
+                          onClick={() => handleDeleteNewImage(i)}
+                          title="Delete image">
+                          ✖
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Label>
+            </div>
+
             <input
               type="file"
               accept=".png,.jpg,.jpeg"
               className="focus:border-ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pl-3.5 file:pr-3 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden focus:file:ring-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
-              placeholder="choose files"
+              placeholder="choose file"
               id="upload_multiple_img"
-              onChange={fileSelectedHandler}
+              {...register("upload_multiple_img", {
+                onChange: fileSelectedHandler,
+              })}
               multiple
             />
-
-            {/* FIXED: Custom validation error for multiple images */}
-            {!isEdit && multipleImagePreview.length === 0 && imageArray.length === 0 && (
-              <p className="error mt-1 text-sm text-red-500">At least one product image is required</p>
-            )}
-
-            {/* FIXED: Image Previews - Better layout and error handling */}
-            {(multipleImagePreview.length > 0 || imageArray.length > 0) && (
-              <div className="flex gap-2 flex-wrap mt-3 p-3 border border-gray-200 rounded-lg">
-                {/* Server images */}
-                {multipleImagePreview.map((img, index) => {
-                  const imageUrl = `${import.meta.env.VITE_APP_API_URL}/uploads/images/${img}`;
-                  return (
-                    <div
-                      key={`server-${img}-${index}`}
-                      className="relative group">
-                      <Link
-                        to={imageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer">
-                        <img
-                          src={imageUrl}
-                          alt={`Server preview ${index + 1}`}
-                          className="w-20 h-20 object-cover rounded border border-gray-300 hover:border-blue-500 transition-colors"
-                          onError={(e) => {
-                            console.error(`Failed to load image: ${imageUrl}`);
-                            (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik00MCA0MEw2MCAyMEgyMEw0MCA0MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+';
-                          }}
-                        />
-                      </Link>
-                      <button
-                        type="button"
-                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center transition-colors shadow-md"
-                        onClick={() => handleDeleteServerImage(img)}
-                        title="Delete image">
-                        ✖
-                      </button>
-                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b opacity-0 group-hover:opacity-100 transition-opacity">
-                        Server
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Local images */}
-                {imageArray.map((file, index) => {
-                  const previewUrl = URL.createObjectURL(file);
-                  return (
-                    <div
-                      key={`new-${index}-${file.name}`}
-                      className="relative group">
-                      <img
-                        src={previewUrl}
-                        alt={`New preview ${index + 1}`}
-                        className="w-20 h-20 object-cover rounded border border-gray-300 hover:border-green-500 transition-colors"
-                        onLoad={() => {
-                          // Clean up the object URL after the image loads to prevent memory leaks
-                          // Note: We don't revoke immediately as the image might still be rendering
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center transition-colors shadow-md"
-                        onClick={() => handleDeleteNewImage(index)}
-                        title="Delete image">
-                        ✖
-                      </button>
-                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                        {file.name}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* FIXED: Show total count and helpful messages */}
-            <div className="mt-2 text-sm text-gray-600">
-              {multipleImagePreview.length + imageArray.length > 0 && (
-                <span>
-                  Total images: {multipleImagePreview.length + imageArray.length} 
-                  {multipleImagePreview.length > 0 && ` (${multipleImagePreview.length} existing)`}
-                  {imageArray.length > 0 && ` (${imageArray.length} new)`}
-                </span>
-              )}
-            </div>
 
             {typeof errors.upload_multiple_img?.message === "string" && (
               <p className="error">{errors.upload_multiple_img.message}</p>
             )}
           </div>
+
+          <div className="col-span-12 md:col-span-4"></div>
 
           {/* Short Description (English) */}
           <div className="col-span-12 md:col-span-6">
@@ -911,6 +832,7 @@ export default function ProductForm() {
               rows={4}
               className="w-full border border-gray-300 rounded p-2 h-22 focus:outline-none focus:ring-2 focus:ring-blue-500"
               id="descr_english"
+              // value={"descr_english"}
               placeholder="Enter description in english"
               {...register("descr_english")}
             />
@@ -927,6 +849,7 @@ export default function ProductForm() {
               rows={4}
               className="w-full border border-gray-300 rounded p-2 h-22 focus:outline-none focus:ring-2 focus:ring-blue-500"
               id="descr_hindi"
+              // value={descr_english}
               placeholder="Enter description in hindi"
               {...register("descr_hindi")}
             />
@@ -939,9 +862,9 @@ export default function ProductForm() {
           <div className="col-span-12">
             <button
               type="submit"
-              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isSubmitting || loading}>
-              {loading ? "Submitting..." :  "Submit"}
+              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+              disabled={isSubmitting}>
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </div>

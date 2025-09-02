@@ -1,6 +1,11 @@
 const { Op, where } = require("sequelize");
 const SKUModel = require("../../models/SKUModel");
 
+const capitalize = (str) =>
+  typeof str === "string" && str.length > 0
+    ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+    : str;
+
 const getAllskus = async (req, res) => {
   try {
     const skus = await SKUModel.findAll({
@@ -20,6 +25,36 @@ const getAllskus = async (req, res) => {
       message: "Internal Server Error",
       data: null,
       error: error,
+    });
+  }
+};
+const getAllDistinctUnits = async (req, res) => {
+  try {
+    const skus = await SKUModel.findAll({
+      where: { is_deleted: "0" },
+      attributes: ["id","unit"], // adjust as needed
+      raw: true,
+    });
+
+    // Deduplicate by 'unit'
+    const seenUnits = new Set();
+    const uniqueUnitSkus = skus.filter((sku) => {
+      if (seenUnits.has(sku.unit)) return false;
+      seenUnits.add(sku.unit);
+      return true;
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "SKUs with distinct units fetched successfully",
+      data: uniqueUnitSkus,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      data: null,
+      error: error.message || error,
     });
   }
 };
@@ -229,7 +264,7 @@ const getAjaxSKUS = async (req, res) => {
     i + 1 + start,
     row.id,
     row.quantity,
-    row.unit,
+    capitalize(row.unit),
     row.status,
   ]);
 
@@ -393,5 +428,6 @@ module.exports = {
   updateSKU,
   getAjaxSKUS,
   deleteSKU,
+  getAllDistinctUnits,
   uniqueSKU,
 };

@@ -1,26 +1,22 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from "react";
 
 interface UseUniqueValidationOptions {
-  /** Function that checks if value is unique - should return true if unique, false if duplicate */
-  checkUnique: (value: string, currentId?: string | null) => Promise<boolean>;
-  /** Debounce delay in milliseconds (default: 500) */
+  checkUnique: (
+    value: string,
+    currentId?: string | null,
+    selectedCategoryId?: string | null
+  ) => Promise<boolean>;
   debounceMs?: number;
-  /** Minimum length before validation starts (default: 1) */
   minLength?: number;
-  /** Custom error message for duplicate values */
   errorMessage?: string;
-  /** Current record ID for edit mode (to exclude from uniqueness check) */
   currentId?: string | null;
+  selectedCategoryId?: string | null;
 }
 
 interface UseUniqueValidationReturn {
-  /** Validation function to use with react-hook-form or yup */
   validateUnique: (value: string) => Promise<boolean | string>;
-  /** Current validation state */
   isValidating: boolean;
-  /** Whether the current value is unique */
   isUnique: boolean | null;
-  /** Reset validation state */
   resetValidation: () => void;
 }
 
@@ -28,13 +24,14 @@ export const useUniqueValidation = ({
   checkUnique,
   debounceMs = 500,
   minLength = 1,
-  errorMessage = 'This value already exists',
-  currentId = null
+  errorMessage = "This value already exists",
+  currentId = null,
+  selectedCategoryId = null, // ✅ Add this
 }: UseUniqueValidationOptions): UseUniqueValidationReturn => {
   const [isValidating, setIsValidating] = useState(false);
   const [isUnique, setIsUnique] = useState<boolean | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastValidatedValueRef = useRef<string>('');
+  const lastValidatedValueRef = useRef<string>("");
 
   const resetValidation = useCallback(() => {
     setIsValidating(false);
@@ -47,12 +44,10 @@ export const useUniqueValidation = ({
 
   const validateUnique = useCallback(
     async (value: string): Promise<boolean | string> => {
-      // Clear previous timer
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
 
-      // Skip validation for empty or too short values
       if (!value || value.trim().length < minLength) {
         resetValidation();
         return true;
@@ -60,27 +55,29 @@ export const useUniqueValidation = ({
 
       const trimmedValue = value.trim();
 
-      // Skip if we already validated this value
       if (lastValidatedValueRef.current === trimmedValue && isUnique !== null) {
         return isUnique || errorMessage;
       }
 
       return new Promise((resolve) => {
         setIsValidating(true);
-        
+
         debounceTimerRef.current = setTimeout(async () => {
           try {
-            const unique = await checkUnique(trimmedValue, currentId);
+            const unique = await checkUnique(
+              trimmedValue,
+              currentId,
+              selectedCategoryId
+            );
             setIsUnique(unique);
             lastValidatedValueRef.current = trimmedValue;
             setIsValidating(false);
-            
+
             resolve(unique || errorMessage);
           } catch (error) {
             setIsValidating(false);
             setIsUnique(null);
-            console.error('Unique validation error:', error);
-            // On error, assume it's unique to not block form submission
+            console.error("Unique validation error:", error);
             resolve(true);
           }
         }, debounceMs);
@@ -93,6 +90,6 @@ export const useUniqueValidation = ({
     validateUnique,
     isValidating,
     isUnique,
-    resetValidation
+    resetValidation,
   };
 };

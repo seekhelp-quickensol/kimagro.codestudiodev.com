@@ -29,7 +29,7 @@ const SignOutButton = ({ isExpanded = true }) => {
         dispatch(adminLogOut()).then(() => {
           persistor.purge();
         });
-        toast("Log Out Successfully.")
+        toast.success("Log Out Successfully.")
       }
     } catch (error) {
       console.log(error);

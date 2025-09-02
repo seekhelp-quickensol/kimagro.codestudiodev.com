@@ -93,7 +93,7 @@ useEffect(() => {
 
           {/* Desktop Menu */}
           <div className="flex items-center justify-between px-4 py-3">
-            <nav className="hidden md:flex space-x-6 md:justify-end">
+            <nav className="hidden lg:flex space-x-6 md:justify-end">
               {menuItems.slice(0, 5).map((item, index) => (
                 <Link
                   key={index}
@@ -111,14 +111,14 @@ useEffect(() => {
               <select
                 value={selectedLang}
                 onChange={(e) => changeLang(e.target.value as "en" | "hi")}
-                className="text-sm border-none bg-transparent focus:outline-none md:hidden"
+                className="text-sm border-none bg-transparent focus:outline-none lg:hidden"
               >
                 <option value="en">{t("header.English")}</option>
                 <option value="hi">{t("header.Hindi")}</option>
               </select>
 
               {/* Desktop Flag Dropdown */}
-              <div className="relative hidden md:block">
+              <div className="relative hidden lg:block">
                 <button
                   onClick={() => setOpen(!open)}
                   className="flex items-center gap-2 text-gray-800 hover:text-green-600 transition bg-transparent border-none focus:outline-none"
@@ -172,7 +172,7 @@ useEffect(() => {
 
 
               {/* Mobile Menu Toggle */}
-              <button onClick={() => setMenuOpen(true)} className="md:hidden">
+              <button onClick={() => setMenuOpen(true)} className="lg:hidden">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6 text-green-800"
@@ -194,7 +194,7 @@ useEffect(() => {
 
         {/* Mobile Sidebar */}
         {menuOpen && (
-          <div className="fixed inset-0 z-50 bg-opacity-40 md:hidden">
+          <div className="fixed inset-0 z-50 bg-opacity-40 lg:hidden">
             <div className="absolute top-4 right-0 w-[50%] max-w-[260px] bg-white rounded-lg shadow-lg p-5">
               {/* Close Button */}
               <button

@@ -113,7 +113,7 @@ export default function EnquiryTable() {
     {
       name: "Action",
       cell: () => (
-        <div className="flex justify-center gap-7 items-center w-full">
+        <div className="flex justify-center gap-7 items-center w-full pe-[30px]">
           <button title="Edit" className="text-green-600 hover:text-green-800">
             <FaEdit size={18} />
           </button>

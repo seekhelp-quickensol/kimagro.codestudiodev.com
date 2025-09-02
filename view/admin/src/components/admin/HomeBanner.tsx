@@ -254,7 +254,7 @@ export default function HomeBannerForm() {
     {
       name: "Actions",
       cell: (row: HomeBannerCol) => (
-        <div className="flex justify-center gap-7 items-center w-full">
+        <div className="flex justify-center gap-7 items-center w-full pe-[30px]">
           <button
             onClick={() => handleEdit(row[1])}
             title="Edit"

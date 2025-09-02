@@ -14,6 +14,10 @@ interface ControlledSelectProps {
   placeholder?: string;
   className?: string;
   castToNumber?: boolean;
+  onSelect?: (value: string | number) => void;
+  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+
+
 }
 
 const ControlledSelect: FC<ControlledSelectProps> = ({
@@ -24,6 +28,7 @@ const ControlledSelect: FC<ControlledSelectProps> = ({
   placeholder = "Select an option",
   className = "",
   castToNumber = false,
+  onChange, onSelect 
 }) => {
   const errorMessage = errors?.[name]?.message?.toString();
   const hasError = Boolean(errorMessage);
@@ -36,11 +41,14 @@ const ControlledSelect: FC<ControlledSelectProps> = ({
         render={({ field }) => (
           <select
             value={field.value}
-            onChange={(e) =>
-              field.onChange(
-                castToNumber ? Number(e.target.value) : e.target.value
-              )
-            }
+            onChange={(e) => {
+              const value = castToNumber ? Number(e.target.value) : e.target.value;
+              field.onChange(value);
+              onChange?.(e); // Custom onChange
+              onSelect?.(value); // Custom onSelect
+            }}
+          
+            
             className={`h-11 w-full appearance-none rounded-lg border px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-1 ${hasError
                 ? "border-error-500 focus:border-error-300 focus:ring-error-500/20"
                 : "border-gray-300 focus:border-brand-300 focus:ring-brand-500/20"

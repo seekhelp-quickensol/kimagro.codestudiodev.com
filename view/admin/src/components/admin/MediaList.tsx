@@ -156,7 +156,7 @@ const MediaList: React.FC = () => {
     {
       name: "Actions",
       cell: (row: mediaModCol) => (
-        <div className="flex justify-center gap-7 items-center w-full">
+        <div className="flex justify-center gap-7 items-center w-full pe-[30px]">
           <button
             onClick={() => handleEdit(row[1])}
             title="Edit"

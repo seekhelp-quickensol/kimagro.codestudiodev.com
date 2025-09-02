@@ -4,10 +4,7 @@ import $ from "jquery";
 import "summernote/dist/summernote-lite.css";
 import "summernote/dist/summernote-lite.js";
 import TagInput from "../form/TagInput";
-import ComponentCard from "./../common/ComponentCard";
-import Label from "../form/Label";
-import toast from "react-hot-toast";
-import MultiSelect from "../../components/form/ControllerdMutiSelect";
+
 import { Link } from "react-router-dom";
 import NewInput from "../form/input/NewInputField";
 
@@ -59,7 +56,10 @@ interface Product {
   upload_multiple_img?: FileList | null | undefined;
 }
 
-
+import ComponentCard from "./../common/ComponentCard";
+import Label from "../form/Label";
+import toast from "react-hot-toast";
+import MultiSelect from "../../components/form/ControllerdMutiSelect";
 
 export default function ProductForm() {
   const [categoryOptions, setCategoryOptions] = useState<
@@ -95,7 +95,7 @@ export default function ProductForm() {
         const transformed = categories.map((cat) => ({
           value: String(cat.id),
           label: cat.title_english,
-        }));  
+        }));
         setCategoryOptions(transformed);
       } catch (error) {
         console.error("Failed to fetch categories", error);
@@ -234,7 +234,7 @@ export default function ProductForm() {
   const getInputHint = () => {
     if (isValidating) return "Checking availability...";
     if (errors.product_name_english) return undefined;
-    if (isUnique === false) return "This category name is already taken";
+    if (isUnique === false) return "This product name is already taken in selected category";
     if (
       isUnique === true &&
       productEnName &&
@@ -248,13 +248,6 @@ export default function ProductForm() {
   const onSubmit = async (data: Product) => {
     setLoading(true);
     try {
-      // FIXED: Add validation for multiple images using imageArray state
-      if (!isEdit && imageArray.length === 0) {
-        toast.error("At least one product image is required");
-        setLoading(false);
-        return;
-      }
-
       const isNameUnique = await checkenglishProNameUnique(
         data.product_name_english.trim(),
         id || null,
@@ -262,11 +255,12 @@ export default function ProductForm() {
       );
 
       if (!isNameUnique) {
-        setLoading(false);
+        toast.error("Product name is not unique");
         return;
       }
 
       const formData = new FormData();
+      console.log(formData);
       formData.append("product_category_id", data.product_category_id);
       formData.append("product_name_english", data.product_name_english);
       formData.append("product_name_hindi", data.product_name_hindi);
@@ -693,7 +687,7 @@ export default function ProductForm() {
             )}
           </div>
           
-            {/* FIXED: Multiple Images Upload Section */}
+          {/* FIXED: Multiple Images Upload Section */}
           <div className="col-span-12 md:col-span-8">
             <Label>
               Product Multiple Images <span className="text-red-500">*</span>
@@ -711,11 +705,6 @@ export default function ProductForm() {
               onChange={fileSelectedHandler}
               multiple
             />
-
-            {/* FIXED: Custom validation error for multiple images */}
-            {!isEdit && multipleImagePreview.length === 0 && imageArray.length === 0 && (
-              <p className="error mt-1 text-sm text-red-500">At least one product image is required</p>
-            )}
 
             {/* FIXED: Image Previews - Better layout and error handling */}
             {(multipleImagePreview.length > 0 || imageArray.length > 0) && (
@@ -941,7 +930,7 @@ export default function ProductForm() {
               type="submit"
               className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting || loading}>
-              {loading ? "Submitting..." :  "Submit"}
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </div>

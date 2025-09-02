@@ -314,6 +314,74 @@ const getAjaxUser = async (req, res) => {
   }
 };
 
+const uniqueEmail = async (req, res) => {
+  const { email, exclude_id } = req.query;
+
+  try {
+    // Validate required parameter
+    if (!email || email.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+        data: {},
+        isUnique: false,
+      });
+    }
+
+    // Build query conditions
+    const whereConditions = {
+      email: email.trim(),
+      is_deleted: "0",
+    };
+
+    // If exclude_id is provided (for edit mode), exclude that record
+    if (exclude_id) {
+      whereConditions.id = {
+        [Op.ne]: exclude_id, // Assuming you're using Sequelize with Op.ne (not equal)
+        // For raw SQL: whereConditions.id = { $ne: exclude_id }
+        // For Mongoose: whereConditions._id = { $ne: exclude_id }
+      };
+    }
+
+    const existing = await authModel.findOne({
+      where: whereConditions,
+    });
+
+    if (existing) {
+      return res.status(200).json({
+        success: true, // Changed to true since the API call succeeded
+        message: "Email already exists",
+        data: {
+          existingId: existing.id,
+          existingName: existing.email,
+        },
+        isUnique: false,
+      });
+    }
+
+    // Department name is unique
+    res.status(200).json({
+      // Changed from 201 to 200
+      success: true, // Changed to true since the API call succeeded
+      message: "Email name is available",
+      data: {},
+      isUnique: true,
+    });
+  } catch (error) {
+    console.error("Error checking email uniqueness:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      data: {
+        error: error.message || error,
+        // Don't expose sensitive error details in production
+        ...(process.env.NODE_ENV === "development" && { stack: error.stack }),
+      },
+      isUnique: false, // Default to false on error for safety
+    });
+  }
+};
 
 module.exports = {
   addUser,
@@ -322,4 +390,5 @@ module.exports = {
   getUserById,
   updateUser,
   getAjaxUser,
+  uniqueEmail,
 };

@@ -7,6 +7,7 @@ const {
   getSKUById,
   updateSKU,
   getAllskus,
+  getAllDistinctUnits,
   deleteSKU,
   uniqueSKU
 } = require("../controllers/admin/skuController");
@@ -17,6 +18,7 @@ const {
 const authenticateAdmin = require("../middleware/authenticateAdmin");
 
 router.get("/skus", getAllskus);
+router.get("/units", getAllDistinctUnits);
 router.get("/get-sku/:id", authenticateAdmin, getSKUById);
 router.post(
   "/add-sku-master",

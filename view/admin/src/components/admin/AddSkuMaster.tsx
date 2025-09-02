@@ -27,8 +27,8 @@ export default function SkuPage() {
     { value: "", label: "Select Unit" },
     { value: "kg", label: "Kg" },
     { value: "gram", label: "Gram" },
-    { value: "ml", label: "ml" },
-    { value: "liter", label: "liter" },
+    { value: "milliliter", label: "Milliliter" },
+    { value: "liter", label: "Liter" },
   ];
   const [refresh, setRefresh] = useState(false);
   const [title, setTitle] = useState<string>("Add SKU Master");

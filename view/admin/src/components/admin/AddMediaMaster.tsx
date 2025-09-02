@@ -5,7 +5,7 @@ import { mediaSchema } from "../../validations/validationSchema";
 import {
   getMediaById,
   submitMediaForm,
-  checkenglishNameUnique,
+  // checkenglishNameUnique,
 } from "../services/serviceApi";
 import { useForm } from "react-hook-form";
 import ControlledSelect from "../form/ControlledSelect";
@@ -23,7 +23,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { CheckLineIcon, CloseLineIcon } from "../../icons";
 import Swal from "sweetalert2";
-import { useUniqueValidation } from "../../hooks/useUniqueValidation";
+// import { useUniqueValidation } from "../../hooks/useUniqueValidation";
 
 interface mediaFormValues {
   media_category: string;
@@ -96,7 +96,7 @@ export default function MediaMasterPage() {
     {
       name: "Actions",
       cell: (row: MediaCategoryCol) => (
-        <div className="flex justify-center gap-7 items-center w-full">
+        <div className="flex justify-center gap-7 items-center w-full pe-[30px]">
           <button
             onClick={() => handleEdit(row[1])}
             title="Edit"
@@ -204,12 +204,12 @@ export default function MediaMasterPage() {
   const {
     register,
     handleSubmit,
-    watch,
+    // watch,
     control,
     formState: { errors },
     reset,
   } = useForm({
-    resolver: yupResolver(mediaSchema(id || null)),
+    resolver: yupResolver(mediaSchema),
   });
 
   const resetForm = () => {
@@ -220,56 +220,56 @@ export default function MediaMasterPage() {
     });
   };
 
-  const englishName = watch("name_english");
+  // const englishName = watch("name_english");
 
-  const { validateUnique, isValidating, isUnique, resetValidation } =
-    useUniqueValidation({
-      checkUnique: checkenglishNameUnique,
-      debounceMs: 300,
-      minLength: 2,
-      errorMessage: "This category name already exists",
-      currentId: id || null,
-    });
-  useEffect(() => {
-    resetValidation();
-  }, [id, resetValidation]);
+  // const { validateUnique, isValidating, isUnique, resetValidation } =
+  //   useUniqueValidation({
+  //     checkUnique: checkenglishNameUnique,
+  //     debounceMs: 300,
+  //     minLength: 2,
+  //     errorMessage: "This category name already exists",
+  //     currentId: id || null,
+  //   });
+  // useEffect(() => {
+  //   resetValidation();
+  // }, [id, resetValidation]);
 
-  useEffect(() => {
-    if (englishName && englishName.trim().length >= 2) {
-      validateUnique(englishName);
-    } else {
-      resetValidation();
-    }
-  }, [englishName, validateUnique, resetValidation]);
-  const getInputState = () => {
-    if (isValidating) return "loading";
-    if (errors.name_english) return "error";
-    if (isUnique === false) return "error";
-    if (isUnique === true && englishName && englishName.trim().length >= 2)
-      return "success";
-    return "default";
-  };
+  // useEffect(() => {
+  //   if (englishName && englishName.trim().length >= 2) {
+  //     validateUnique(englishName);
+  //   } else {
+  //     resetValidation();
+  //   }
+  // }, [englishName, validateUnique, resetValidation]);
+  // const getInputState = () => {
+  //   if (isValidating) return "loading";
+  //   if (errors.name_english) return "error";
+  //   if (isUnique === false) return "error";
+  //   if (isUnique === true && englishName && englishName.trim().length >= 2)
+  //     return "success";
+  //   return "default";
+  // };
 
-  const getInputHint = () => {
-    if (isValidating) return "Checking availability...";
-    if (errors.name_english) return undefined;
-    if (isUnique === false) return "This category name is already taken";
-    if (isUnique === true && englishName && englishName.trim().length >= 2) {
-      return "Category name is available";
-    }
-    return "";
-  };
+  // const getInputHint = () => {
+  //   if (isValidating) return "Checking availability...";
+  //   if (errors.name_english) return undefined;
+  //   if (isUnique === false) return "This category name is already taken";
+  //   if (isUnique === true && englishName && englishName.trim().length >= 2) {
+  //     return "Category name is available";
+  //   }
+  //   return "";
+  // };
 
   const onSubmit = async (data: mediaFormValues) => {
     try {
-      const isNameUnique = await checkenglishNameUnique(
-        data.name_english.trim(),
-        id || null
-      );
+      // const isNameUnique = await checkenglishNameUnique(
+      //   data.name_english.trim(),
+      //   id || null
+      // );
 
-      if (!isNameUnique) {
-        return;
-      }
+      // if (!isNameUnique) {
+      //   return;
+      // }
       const formData = new FormData();
       formData.append("name_english", data.name_english);
       formData.append("name_hindi", data.name_hindi);
@@ -343,6 +343,7 @@ export default function MediaMasterPage() {
                 errors={errors}
                 options={options}
                 placeholder="Select Media Type"
+               
               />
             </div>
             <div className="col-span-12 md:col-span-4">
@@ -356,8 +357,8 @@ export default function MediaMasterPage() {
                 className="w-full"
                 register={register}
                 errors={errors}
-                success={getInputState() === "success"}
-                hint={getInputHint()}
+                // success={getInputState() === "success"}
+                // hint={getInputHint()}
               />
             </div>
             <div className="col-span-12 md:col-span-4">

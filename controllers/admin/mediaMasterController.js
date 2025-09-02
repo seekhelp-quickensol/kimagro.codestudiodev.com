@@ -72,29 +72,29 @@ const createMedia = async (req, res) => {
   const { media_category, name_english, name_hindi } = req.body;
 
   try {
-    const existing = await mediaModel.findOne({
-      where: { media_category, name_english, is_deleted: "0" },
-    });
+    // const existing = await mediaModel.findOne({
+    //   where: { media_category, name_english, is_deleted: "0" },
+    // });
 
-    if (existing) {
-      return res.status(200).json({
-        success: false,
-        message: "Category in english already exists for this media type",
-        data: {},
-      });
-    }
+    // if (existing) {
+    //   return res.status(200).json({
+    //     success: false,
+    //     message: "Category in english already exists for this media type",
+    //     data: {},
+    //   });
+    // }
 
-    const existingHi = await mediaModel.findOne({
-      where: { media_category, name_hindi, is_deleted: "0" },
-    });
+    // const existingHi = await mediaModel.findOne({
+    //   where: { media_category, name_hindi, is_deleted: "0" },
+    // });
 
-    if (existingHi) {
-      return res.status(200).json({
-        success: false,
-        message: "Category in hindi already exists for this media type",
-        data: {},
-      });
-    }
+    // if (existingHi) {
+    //   return res.status(200).json({
+    //     success: false,
+    //     message: "Category in hindi already exists for this media type",
+    //     data: {},
+    //   });
+    // }
 
     const newMedia = await mediaModel.create({
       ...req.body,

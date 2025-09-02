@@ -2,8 +2,9 @@ import {
   checkDepartmentNameUnique,
   checkDesegnationNameUnique,
   checkEnCategoryNameUnique,
-  checkenglishNameUnique,
+  // checkenglishNameUnique,
   checkenglishProNameUnique,
+  // checkEmailIdUnique,
 } from "../components/services/serviceApi";
 import * as Yup from "yup";
 // import { ObjectSchema } from "yup";
@@ -38,7 +39,6 @@ interface CategoryFormValues {
 const categorySchema = (
   isEdit: boolean,
   currentId: string | null
-
 ): Yup.ObjectSchema<CategoryFormValues> =>
   Yup.object({
     title_english: Yup.string()
@@ -131,63 +131,62 @@ interface MediaFormValues {
   name_hindi: string;
 }
 
-const mediaSchema = (current_id: string | null): Yup.ObjectSchema<MediaFormValues> => {
-  return Yup.object({
-  media_category: Yup.string().required("Media category is required"),
+const mediaSchema: Yup.ObjectSchema<MediaFormValues> = Yup.object({
+    media_category: Yup.string().required("Media category is required"),
 
-  name_english: Yup.string()
-    .required("Category in english is required")
-    .max(200, "Category in english cannot exceed 200 characters")
-    .test(
-      "no-digits",
-      "Category in english should not contain any digits",
-      (value) => {
-        if (!value) return true;
-        return !/\p{Nd}/u.test(value);
-      }
-    )
-    .matches(/^[A-Za-z\s\-&()'",.]*$/, "Only english characters are allowed")
-    .test("no-leading-space", "First letter cannot be a space", (value) =>
-      value ? value[0] !== " " : true
-    )
-    .test(
-      "unique-category-name",
-      "This category name already exists",
-      async function (value) {
-        if (!value || value.trim().length < 2) {
-          return true;
+    name_english: Yup.string()
+      .required("Category in english is required")
+      .max(200, "Category in english cannot exceed 200 characters")
+      .test(
+        "no-digits",
+        "Category in english should not contain any digits",
+        (value) => {
+          if (!value) return true;
+          return !/\p{Nd}/u.test(value);
         }
+      )
+      .matches(/^[A-Za-z\s\-&()'",.]*$/, "Only english characters are allowed")
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? value[0] !== " " : true
+      )
+      // .test(
+      //   "unique-category-name",
+      //   "This category name already exists",
+      //   async function (value) {
+      //     if (!value || value.trim().length < 2) {
+      //       return true;
+      //     }
 
-        try {
-          const isUnique = await checkenglishNameUnique(
-            value.trim(),
-            current_id
+      //     try {
+      //       const isUnique = await checkenglishNameUnique(
+      //         value.trim(),
+      //         current_id
+      //       );
+      //       return isUnique;
+      //     } catch (error) {
+      //       return true;
+      //     }
+      //   }
+      // )
+      ,
 
-          );
-          return isUnique;
-        } catch (error) {
-          return true;
-        }
-      }
-    ),
+    name_hindi: Yup.string()
+      .required("Category in hindi is required")
+      .max(200, "Category in hindi cannot exceed 200 characters")
+      .test(
+        "no-digits",
+        "Category in hindi should not contain any digits",
+        (value) => !value || !/[0-9\u0966-\u096F\u0A6F]/.test(value)
+      )
+      .matches(
+        /^[\u0900-\u097F\s\-&()'",.]*$/,
+        "Only hindi characters are allowed"
+      )
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? value[0] !== " " : true
+      ),
+  });
 
-  name_hindi: Yup.string()
-    .required("Category in hindi is required")
-    .max(200, "Category in hindi cannot exceed 200 characters")
-    .test(
-      "no-digits",
-      "Category in hindi should not contain any digits",
-      (value) => !value || !/[0-9\u0966-\u096F\u0A6F]/.test(value)
-    )
-    .matches(
-      /^[\u0900-\u097F\s\-&()'",.]*$/,
-      "Only hindi characters are allowed"
-    )
-    .test("no-leading-space", "First letter cannot be a space", (value) =>
-      value ? value[0] !== " " : true
-    ),
-})
-};
 
 // 4. Banner Schema
 interface BannerFormValues {
@@ -200,9 +199,7 @@ interface BannerFormValues {
   upload_video: FileList | null | undefined;
 }
 
-const bannerSchema = (isEdit: boolean,
-
-): Yup.ObjectSchema<BannerFormValues> =>
+const bannerSchema = (isEdit: boolean): Yup.ObjectSchema<BannerFormValues> =>
   Yup.object({
     title_english: Yup.string()
       .required("Title in hindi is required")
@@ -329,9 +326,10 @@ interface ProductFormValues {
   descr_hindi?: string | null;
 }
 
-const productSchema = (isEdit: boolean,
-  currentId: string | null
-
+const productSchema = (
+  isEdit: boolean,
+  currentId: string | null,
+  selectedCategoryId: string | null
 ): Yup.ObjectSchema<ProductFormValues> =>
   Yup.object({
     product_category_id: Yup.string().required("Product category is required"),
@@ -357,12 +355,11 @@ const productSchema = (isEdit: boolean,
           if (!value || value.trim().length < 2) {
             return true;
           }
-
           try {
             const isUnique = await checkenglishProNameUnique(
               value.trim(),
-              currentId
-
+              currentId,
+              selectedCategoryId
             );
             return isUnique;
           } catch (error) {
@@ -536,27 +533,39 @@ const productSchema = (isEdit: boolean,
         .nullable()
         .transform((value) => (value === undefined ? null : value)),
 
-    upload_multiple_img: isEdit
-      ? Yup.mixed<FileList>()
-        .nullable()
-        .transform((value) => (value === undefined ? null : value))
-      : Yup.mixed<FileList>()
-        .required("Product image is required")
-        .test("fileType", "Only image files are allowed", (value) => {
-          if (!value || value.length === 0) return false;
-          for (let i = 0; i < value.length; i++) {
-            if (
-              !["image/jpeg", "image/png", "image/jpg"].includes(
-                value[i].type
-              )
-            ) {
-              return false;
-            }
-          }
+    // upload_multiple_img: isEdit
+    //   ? Yup.mixed<FileList>()
+    //     .nullable()
+    //     .transform((value) => (value === undefined ? null : value))
+    //   : Yup.mixed<FileList>()
+    //     .required("Product image is required")
+    //     .test("fileType", "Only image files are allowed", (value) => {
+    //       if (!value || value.length === 0) return false;
+    //       for (let i = 0; i < value.length; i++) {
+    //         if (
+    //           !["image/jpeg", "image/png", "image/jpg"].includes(
+    //             value[i].type
+    //           )
+    //         ) {
+    //           return false;
+    //         }
+    //       }
+    //       return true;
+    //     })
+    //     .nullable()
+    //     .transform((value) => (value === undefined ? null : value)),
+    // FIXED: Multiple images validation - handle state-managed files
+    upload_multiple_img: Yup.mixed<FileList>()
+      .nullable()
+      .transform((value) => (value === undefined ? null : value))
+      .test(
+        "has-images",
+        "At least one product image is required",
+        function() {
+          // Skip validation during form submission since we handle files via imageArray state
           return true;
-        })
-        .nullable()
-        .transform((value) => (value === undefined ? null : value)),
+        }
+      ),
 
     upload_brouch_english: isEdit
       ? Yup.mixed<FileList>()
@@ -612,8 +621,7 @@ interface innovationValues {
   descr_hindi?: string | null;
 }
 const innovationSchema = (
-  isEdit: boolean,
-
+  isEdit: boolean
 ): Yup.ObjectSchema<innovationValues> =>
   Yup.object({
     upload_icon: isEdit
@@ -710,8 +718,7 @@ interface mediaModuleValues {
 // });
 
 const mediaModuleSchema = (
-  isEdit: boolean,
-
+  isEdit: boolean
 ): Yup.ObjectSchema<mediaModuleValues> =>
   Yup.object({
     media_type: Yup.string().required("Media type is required"),
@@ -860,56 +867,132 @@ type userValues = {
   password: string;
 };
 
-const userSchema = Yup.object().shape({
-  first_name: Yup.string()
-    .required("First name is required")
-    .matches(/^[^\d]*$/, "First name should not contain any digits")
-    .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
-    .test("no-leading-space", "First letter cannot be a space", (value) =>
-      value ? value[0] !== " " : true
-    ),
-  middle_name: Yup.string()
-    .required("Middle name is required")
-    .matches(/^[^\d]*$/, "Middle name should not contain any digits")
-    .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
-    .test("no-leading-space", "First letter cannot be a space", (value) =>
-      value ? value[0] !== " " : true
-    ),
-  last_name: Yup.string()
-    .required("Last name is required")
-    .matches(/^[^\d]*$/, "Last name should not contain any digits")
-    .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
-    .test("no-leading-space", "First letter cannot be a space", (value) =>
-      value ? value[0] !== " " : true
-    ),
-  department_id: Yup.number().required("Department is required"),
-  designation_id: Yup.number().required("Designation is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  username: Yup.string()
-    .required("Username is required")
-    .test("no-leading-space", "First letter cannot be a space", (value) =>
-      value ? value[0] !== " " : true
-    ),
-  password: Yup.string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters")
-    .test(
-      "no-hindi-characters",
-      "Only english characters are allowed",
-      (value) => !/[\u0900-\u097F\u0966-\u096F\u0A66-\u0A6F]/.test(value ?? "")
-    )
-    .test("no-leading-space", "First letter cannot be a space", (value) =>
-      value ? value[0] !== " " : true
-    )
-    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-    .matches(/[0-9]/, "Password must contain at least one number")
-    .matches(
-      /[!@#$%^&*(),.?":{}|<>]/,
-      "Password must contain at least one special character"
-    ),
-});
+// const userSchema = (currentId: string | null = null) => {
+//   return Yup.object().shape({
+//     first_name: Yup.string()
+//       .required("First name is required")
+//       .matches(/^[^\d]*$/, "First name should not contain any digits")
+//       .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
+//       .test("no-leading-space", "First letter cannot be a space", (value) =>
+//         value ? value[0] !== " " : true
+//       ),
+//     middle_name: Yup.string()
+//       .required("Middle name is required")
+//       .matches(/^[^\d]*$/, "Middle name should not contain any digits")
+//       .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
+//       .test("no-leading-space", "First letter cannot be a space", (value) =>
+//         value ? value[0] !== " " : true
+//       ),
+//     last_name: Yup.string()
+//       .required("Last name is required")
+//       .matches(/^[^\d]*$/, "Last name should not contain any digits")
+//       .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
+//       .test("no-leading-space", "First letter cannot be a space", (value) =>
+//         value ? value[0] !== " " : true
+//       ),
+//     department_id: Yup.number().required("Department is required"),
+//     designation_id: Yup.number().required("Designation is required"),
+//     email: Yup.string()
+//       .email("Invalid email")
+//       .lowercase()
+//       .required("Email is required")
+//       .test(
+//         "unique-email",
+//         "This email already exists",
+//         async function (value) {
+//           if (!value || value.trim().length < 2) {
+//             return true;
+//           }
 
+//           try {
+//             const isUnique = await checkEmailIdUnique(value.trim(), currentId);
+//             return isUnique;
+//           } catch (error) {
+//             return true;
+//           }
+//         }
+//       ),
+//     username: Yup.string()
+//       .required("Username is required")
+//       .test("no-leading-space", "First letter cannot be a space", (value) =>
+//         value ? value[0] !== " " : true
+//       ),
+//     password: Yup.string()
+//       .required("Password is required")
+//       .min(6, "Password must be at least 6 characters")
+//       .test(
+//         "no-hindi-characters",
+//         "Only english characters are allowed",
+//         (value) =>
+//           !/[\u0900-\u097F\u0966-\u096F\u0A66-\u0A6F]/.test(value ?? "")
+//       )
+//       .test("no-leading-space", "First letter cannot be a space", (value) =>
+//         value ? value[0] !== " " : true
+//       )
+//       .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+//       .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+//       .matches(/[0-9]/, "Password must contain at least one number")
+//       .matches(
+//         /[!@#$%^&*(),.?":{}|<>]/,
+//         "Password must contain at least one special character"
+//       ),
+//   });
+// };
+const userSchema =  Yup.object().shape({
+    first_name: Yup.string()
+      .required("First name is required")
+      .matches(/^[^\d]*$/, "First name should not contain any digits")
+      .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? value[0] !== " " : true
+      ),
+    middle_name: Yup.string()
+      .required("Middle name is required")
+      .matches(/^[^\d]*$/, "Middle name should not contain any digits")
+      .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? value[0] !== " " : true
+      ),
+    last_name: Yup.string()
+      .required("Last name is required")
+      .matches(/^[^\d]*$/, "Last name should not contain any digits")
+      .matches(/^[A-Za-z\s]+$/, "Only english characters are allowed")
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? value[0] !== " " : true
+      ),
+    department_id: Yup.number().required("Department is required"),
+    designation_id: Yup.number().required("Designation is required"),
+    email: Yup.string()
+      .email("Invalid email")
+      .lowercase()
+      .required("Email is required"),
+    // ✅ REMOVED the async unique test from here - let useUniqueValidation handle it
+    username: Yup.string()
+      .required("Username is required")
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? value[0] !== " " : true
+      ),
+    password: Yup.string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters")
+      .test(
+        "no-hindi-characters",
+        "Only english characters are allowed",
+        (value) =>
+          !/[\u0900-\u097F\u0966-\u096F\u0A66-\u0A6F]/.test(value ?? "")
+      )
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? value[0] !== " " : true
+      )
+      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+      .matches(/[0-9]/, "Password must contain at least one number")
+      .matches(
+        /[!@#$%^&*(),.?":{}|<>]/,
+        "Password must contain at least one special character"
+      ),
+  });
+ 
 type departmentValues = {
   department_name: string;
 };
@@ -967,7 +1050,7 @@ const departmentSchema = (currentId: string | null = null) => {
         }
       ),
   });
-}
+};
 
 type designationValues = {
   designation_name: string;
@@ -975,58 +1058,58 @@ type designationValues = {
 
 const designationSchema = (currentId: string | null = null) => {
   return Yup.object().shape({
-  designation_name: Yup.string()
-    .required("Designation name is required")
+    designation_name: Yup.string()
+      .required("Designation name is required")
 
-    .max(200, "Designation name cannot exceed 200 characters")
-    .test(
-      "no-digits",
-      "Designation name should not contain any digits",
-      (value) => {
-        if (!value) return true;
-        return !/\p{Nd}/u.test(value);
-      }
-    )
-    .test(
-      "no-special-characters",
-      "Special characters are not allowed",
-      (value) => {
-        if (!value) return true;
-        return /^[A-Za-z\u0900-\u097F\s0-9]*$/.test(value);
-      }
-    )
-    .test(
-      "only-english-letters-spaces",
-      "Only english letters are allowed",
-      (value) => {
-        if (!value) return true;
-        return /^[A-Za-z\s]*$/.test(value);
-      }
-    )
-    .test("no-leading-space", "First letter cannot be a space", (value) =>
-      value ? value[0] !== " " : true
-    )
-    .test(
-      "unique-designation-name",
-      "This designation name already exists",
-      async function (value) {
-        if (!value || value.trim().length < 2) {
-          return true;
+      .max(200, "Designation name cannot exceed 200 characters")
+      .test(
+        "no-digits",
+        "Designation name should not contain any digits",
+        (value) => {
+          if (!value) return true;
+          return !/\p{Nd}/u.test(value);
         }
+      )
+      .test(
+        "no-special-characters",
+        "Special characters are not allowed",
+        (value) => {
+          if (!value) return true;
+          return /^[A-Za-z\u0900-\u097F\s0-9]*$/.test(value);
+        }
+      )
+      .test(
+        "only-english-letters-spaces",
+        "Only english letters are allowed",
+        (value) => {
+          if (!value) return true;
+          return /^[A-Za-z\s]*$/.test(value);
+        }
+      )
+      .test("no-leading-space", "First letter cannot be a space", (value) =>
+        value ? value[0] !== " " : true
+      )
+      .test(
+        "unique-designation-name",
+        "This designation name already exists",
+        async function (value) {
+          if (!value || value.trim().length < 2) {
+            return true;
+          }
 
-        try {
-          const isUnique = await checkDesegnationNameUnique(
-            value.trim(),
-            currentId
-          );
-          return isUnique;
-        } catch (error) {
-          return true;
+          try {
+            const isUnique = await checkDesegnationNameUnique(
+              value.trim(),
+              currentId
+            );
+            return isUnique;
+          } catch (error) {
+            return true;
+          }
         }
-      }
-    ),
-});
-}
+      ),
+  });
+};
 
 const contactValidationRules = {
   name: Yup.string().trim().required("Name is required"),

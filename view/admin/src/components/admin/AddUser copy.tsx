@@ -18,15 +18,13 @@ import { useParams } from "react-router";
 import useFetchUserById from "../../hooks/useUserById";
 import toast from "react-hot-toast";
 import { useUniqueValidation } from "../../hooks/useUniqueValidation";
- 
-
-
 
 export default function UserForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
+  // Define department and designation options
   const [departmentOptions, setDepartmentOptions] = useState<
     { value: number; label: string }[]
   >([]);
@@ -38,8 +36,12 @@ export default function UserForm() {
     const fetchDepartments = async () => {
       const response = await getAllDepartments();
       const departmentData = response.data.data;
+
       setDepartmentOptions([
-        { value: 0, label: "Select Department" },
+        {
+          value: 0,
+          label: "Select Department",
+        },
         ...departmentData.map((dept: any) => ({
           value: dept.id,
           label: dept.department_name,
@@ -50,8 +52,12 @@ export default function UserForm() {
     const fetchDesignations = async () => {
       const response = await getAllDesignations();
       const designationData = response.data.data;
+
       setDesignationOptions([
-        { value: 0, label: "Select Designation" },
+        {
+          value: 0,
+          label: "Select Designation",
+        },
         ...designationData.map((desig: any) => ({
           value: desig.id,
           label: desig.designation_name,
@@ -70,8 +76,6 @@ export default function UserForm() {
     watch,
     control,
     formState: { errors },
-    setError,
-    clearErrors,
   } = useForm({
     resolver: yupResolver(userSchema),
     defaultValues: {
@@ -87,9 +91,10 @@ export default function UserForm() {
   });
 
   const { title } = useFetchUserById(reset);
+
   const emailId = watch("email");
 
-  // ✅ Updated unique validation hook
+  // Set up unique validation hook
   const { validateUnique, isValidating, isUnique, resetValidation } =
     useUniqueValidation({
       checkUnique: checkEmailIdUnique,
@@ -99,104 +104,49 @@ export default function UserForm() {
       currentId: id || null,
     });
 
+  // Reset validation when component unmounts or ID changes
   useEffect(() => {
     resetValidation();
   }, [id, resetValidation]);
 
-  // ✅ Enhanced email validation effect
+  // Validate uniqueness when department name changes
   useEffect(() => {
-    const validateEmail = async () => {
-      if (!emailId || emailId.trim().length < 2) {
-        resetValidation();
-        clearErrors("email"); // Clear any existing email errors
-        return;
-      }
-
-      // First check if email format is valid (basic validation)
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(emailId.trim())) {
-        resetValidation();
-        return; // Let Yup handle the email format error
-      }
-
-      // Only check uniqueness if email format is valid
-      try {
-        await validateUnique(emailId.trim());
-      } catch (error) {
-        console.error("Email validation error:", error);
-      }
-    };
-
-    validateEmail();
-  }, [emailId, validateUnique, resetValidation, clearErrors]);
-
-  // ✅ Improved input state logic
+    if (emailId && emailId.trim().length >= 2) {
+      validateUnique(emailId);
+    } else {
+      resetValidation();
+    }
+  }, [emailId, validateUnique, resetValidation]);
   const getInputState = () => {
     if (isValidating) return "loading";
-    
-    // Prioritize Yup validation errors (like invalid email format)
     if (errors.email) return "error";
-    
-    // Then check uniqueness validation
     if (isUnique === false) return "error";
-    
-    // Show success only if email is valid format AND unique
-    if (isUnique === true && emailId && emailId.trim().length >= 2 && !errors.email) {
+    if (isUnique === true && emailId && emailId.trim().length >= 2)
       return "success";
-    }
-    
     return "default";
   };
 
-  // ✅ Improved hint logic
   const getInputHint = () => {
     if (isValidating) return "Checking availability...";
-    
-    // Show Yup validation errors first
-    if (errors.email) return errors.email.message;
-    
-    // Then show uniqueness validation messages
-    if (isUnique === false) return "This email is already taken";
-    
-    if (isUnique === true && emailId && emailId.trim().length >= 2 && !errors.email) {
-      return "Email is available";
+    if (errors.email) return undefined;
+    if (isUnique === false) return "This email name is already taken";
+    if (isUnique === true && emailId && emailId.trim().length >= 2) {
+      return "Department name is available";
     }
-    
-    return undefined;
+    return "";
   };
 
-  // ✅ Enhanced form submission with proper validation
   const onSubmit = async (data: any) => {
+    //  setLoading(true);
     try {
-      // ✅ IMPORTANT: Check if there are any validation errors first
-      if (Object.keys(errors).length > 0) {
-        toast.error("Please fix all validation errors before submitting");
+      const isNameUnique = await checkEmailIdUnique(
+        data.emailId,
+        id || null
+      );
+
+      if (!isNameUnique) {
         return;
       }
-
-      // ✅ Validate email format manually as additional check
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(data.email)) {
-        setError("email", {
-          type: "manual",
-          message: "Please enter a valid email address"
-        });
-        // toast.error("Please enter a valid email address");
-        return;
-      }
-
-      // Double-check email uniqueness before submission
-      const isEmailUnique = await checkEmailIdUnique(data.email, id || null);
-      
-      if (!isEmailUnique) {
-        setError("email", {
-          type: "manual",
-          message: "This email already exists"
-        });
-        toast.error("This email already exists");
-        return;
-      }
-
       const formData = new FormData();
       formData.append("first_name", data.first_name);
       formData.append("middle_name", data.middle_name);
@@ -210,8 +160,7 @@ export default function UserForm() {
       const method = id ? "put" : "post";
       const response = await submitUserForm(id ?? null, formData, method);
       const { success, message } = response.data;
-      
-      success ? toast.success(message) : toast.error(message);
+      success ? toast.success(`${message}`) : toast.error(`${message}`);
 
       if (success) {
         reset();
@@ -227,8 +176,10 @@ export default function UserForm() {
         const axiosErr = err as { response: { data: { message: string } } };
         msg = axiosErr.response?.data?.message || msg;
       }
-      
+      reset();
       toast.error(`Error: ${msg}`);
+    } finally {
+      // setLoading(false);
     }
   };
 
@@ -256,6 +207,7 @@ export default function UserForm() {
             <Label>
               Middle Name<span className="text-red-500">*</span>
             </Label>
+
             <NewInput
               name="middle_name"
               type="text"
@@ -311,21 +263,21 @@ export default function UserForm() {
             />
           </div>
 
-          {/* ✅ Fixed Email Field */}
+          {/* Email */}
           <div className="col-span-12 md:col-span-6">
             <Label>
               Email<span className="text-red-500">*</span>
             </Label>
             <NewInput
               name="email"
-              type="email"
+              type="text"
               placeholder="Enter Email"
-              className="w-full lowercase"
+              className="w-full"
               register={register}
               errors={errors}
               success={getInputState() === "success"}
               hint={getInputHint()}
-              
+        
             />
           </div>
 
@@ -362,8 +314,9 @@ export default function UserForm() {
                 type="button"
                 onClick={() => setPasswordVisible(!passwordVisible)}
                 className="absolute right-3 top-[3rem] -translate-y-1/2 p-1 focus:outline-none"
-                aria-label={passwordVisible ? "Hide password" : "Show password"}
-              >
+                aria-label={
+                  passwordVisible ? "Hide password" : "Show password"
+                }>
                 {passwordVisible ? (
                   <EyeIcon className="size-5 fill-gray-500 dark:fill-gray-400" />
                 ) : (
@@ -377,10 +330,8 @@ export default function UserForm() {
           <div className="col-span-12">
             <button
               type="submit"
-              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isValidating || Object.keys(errors).length > 0}
-            >
-              {isValidating ? "Validating..." : "Submit"}
+              className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+              Submit
             </button>
           </div>
         </div>

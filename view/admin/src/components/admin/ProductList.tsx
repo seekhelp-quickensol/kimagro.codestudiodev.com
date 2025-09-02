@@ -9,7 +9,7 @@ import {
   deactivateItem,
   deleteItem,
 } from "../../components/services/commonApi";
-import { getAllSKUSOption } from "../services/serviceApi";
+// import { getAllSKUSOption } from "../services/serviceApi";
 import Label from "../../components/form/Label";
 import toast from "react-hot-toast";
 import { CheckLineIcon, CloseLineIcon } from "../../icons";
@@ -20,6 +20,7 @@ interface ProductCol {
   0: number;
   1: number; //id
   2: number; // product_category_id
+  
   3: string; //product_name_english
   4: string; //product_name_hindi
   5: string; //product_img
@@ -39,6 +40,8 @@ interface ProductCol {
   18: number | string; //status
   19: string; //product_tag_english
   20: string; //product_tag_hindi
+  21: string; //product_name_english
+  22: string; //product_name_hindi
 }
 
 interface ApiResponse {
@@ -98,7 +101,13 @@ const ProductList: React.FC = () => {
   };
 
   // const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [unitOptions, setUnitOptions] = useState<UnitOption[]>([]);
+  const [unitOptions] = useState<UnitOption[]>([
+    { value: "all", label: "All Unit" },
+    { value: "kg", label: "Kg" },
+    { value: "gram", label: "Gram" },
+    { value: "milliliter", label: "Milliliter" },
+    { value: "liter", label: "Liter" },
+  ]);
   const [unitFilter, setUnitFilter] = useState<string>("all");
   const [productNameFilter, setProductNameFilter] = useState<string>("");
   const [filteredUrl, setFilteredUrl] = useState<string>(
@@ -106,31 +115,31 @@ const ProductList: React.FC = () => {
   );
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUnits = async () => {
-      const response = await getAllSKUSOption();
+  // useEffect(() => {
+  //   const fetchUnits = async () => {
+  //     const response = await getAllSKUSOption();
 
-      const unitData = response.data.data;
-      console.log("Unit API response:", response.data);
+  //     const unitData = response.data.data;
+  //     console.log("Unit API response:", response.data);
 
-      setUnitOptions([
-        { value: "all", label: "All Unit" },
-        ...unitData.map((dept: any) => ({
-          value: dept.id.toString(),
-          label: dept.unit,
-        })),
-      ]);
-    };
+  //     setUnitOptions([
+  //       { value: "all", label: "All Unit" },
+  //       ...unitData.map((dept: any) => ({
+  //         value: dept.unit,
+  //         label: dept.unit,
+  //       })),
+  //     ]);
+  //   };
 
-    fetchUnits();
-  }, []);
+  //   fetchUnits();
+  // }, []);
 
   useEffect(() => {
     if (unitFilter === "all" && productNameFilter === "") {
       setFilteredUrl("/api/products/ajax/product-list");
     } else {
       setFilteredUrl(
-        `/api/products/ajax/product-list?sku_id=${unitFilter}&product_name=${productNameFilter}`
+        `/api/products/ajax/product-list?sku_unit=${unitFilter}&product_name=${productNameFilter}`
       );
     }
   }, [unitFilter, productNameFilter]);
@@ -146,6 +155,14 @@ const ProductList: React.FC = () => {
       name: "Sr. No.",
       selector: (row: ProductCol) => row[0],
       width: "80px",
+    },
+    {
+      name: "Category Name (English)",
+      selector: (row: ProductCol) => row[21],
+    },
+    {
+      name: "Category Name (Hindi)",
+      selector: (row: ProductCol) => row[22],
     },
     {
       name: "Product Name (English)",
@@ -213,9 +230,8 @@ const ProductList: React.FC = () => {
       name: "Brochure (English)",
       cell: (row: ProductCol) => (
         <a
-          href={`${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${
-            row[14]
-          }`}
+          href={`${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${row[14]
+            }`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 underline">
@@ -227,9 +243,8 @@ const ProductList: React.FC = () => {
       name: "Brochure (Hindi)",
       cell: (row: ProductCol) => (
         <a
-          href={`${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${
-            row[15]
-          }`}
+          href={`${import.meta.env.VITE_APP_API_URL}/uploads/brochures/${row[15]
+            }`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 underline">
@@ -255,7 +270,7 @@ const ProductList: React.FC = () => {
     {
       name: "Actions",
       cell: (row: ProductCol) => (
-        <div className="flex justify-center gap-7 items-center w-full">
+        <div className="flex justify-center gap-7 items-center w-full pe-[30px]">
           <button
             onClick={() => handleEdit(row[1])}
             title="Edit"
@@ -399,9 +414,8 @@ const ProductList: React.FC = () => {
           <div className="bg-white p-6 rounded shadow-lg max-w-lg w-full max-h-[80vh] overflow-y-auto">
             {modalType === "product_img" && selectedProduct[5] && (
               <img
-                src={`${import.meta.env.VITE_APP_API_URL}/uploads/images/${
-                  selectedProduct[5]
-                }`}
+                src={`${import.meta.env.VITE_APP_API_URL}/uploads/images/${selectedProduct[5]
+                  }`}
                 alt="Product"
                 className="mx-auto rounded mb-2"
               />
@@ -409,19 +423,19 @@ const ProductList: React.FC = () => {
 
             {(modalType === "short_descr_english" ||
               modalType === "short_descr_hindi") && (
-              <div>
-                <strong>
-                  {modalType === "short_descr_english"
-                    ? "Short Description (English):"
-                    : "Short Description (Hindi):"}
-                </strong>
-                <p className="mt-2 whitespace-pre-line">
-                  {modalType === "short_descr_english"
-                    ? selectedProduct[12]
-                    : selectedProduct[13]}
-                </p>
-              </div>
-            )}
+                <div>
+                  <strong>
+                    {modalType === "short_descr_english"
+                      ? "Short Description (English):"
+                      : "Short Description (Hindi):"}
+                  </strong>
+                  <p className="mt-2 whitespace-pre-line">
+                    {modalType === "short_descr_english"
+                      ? selectedProduct[12]
+                      : selectedProduct[13]}
+                  </p>
+                </div>
+              )}
 
             {modalType === "upload_multiple_img" &&
               Array.isArray(selectedProduct[11]) &&
@@ -432,9 +446,8 @@ const ProductList: React.FC = () => {
                     {selectedProduct[11].map((img, idx) => (
                       <img
                         key={idx}
-                        src={`${
-                          import.meta.env.VITE_APP_API_URL
-                        }/uploads/images/${img}`}
+                        src={`${import.meta.env.VITE_APP_API_URL
+                          }/uploads/images/${img}`}
                         alt={`Product Img ${idx + 1}`}
                         className="w-full h-32 object-cover rounded"
                       />

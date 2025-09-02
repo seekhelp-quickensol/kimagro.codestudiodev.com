@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import ComponentCard from "./../common/ComponentCard";
 import Label from "../form/Label";
-import { checkDepartmentNameUnique, submitDepartmentForm } from "../../components/services/serviceApi";
+import {
+  checkDepartmentNameUnique,
+  submitDepartmentForm,
+} from "../../components/services/serviceApi";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { departmentSchema } from "../../validations/validationSchema";
@@ -29,29 +32,22 @@ export default function DepartmentMaster() {
     defaultValues: {
       department_name: "",
     },
-    mode: 'onChange',
+    mode: "onChange",
   });
 
+  const { title } = useDepartmentById(reset);
 
-  
-
-  const {title} = useDepartmentById(reset);
-
-  const departmentName = watch('department_name');
+  const departmentName = watch("department_name");
 
   // Set up unique validation hook
-  const {
-    validateUnique,
-    isValidating,
-    isUnique,
-    resetValidation
-  } = useUniqueValidation({
-    checkUnique: checkDepartmentNameUnique,
-    debounceMs: 300,
-    minLength: 2,
-    errorMessage: 'This department name already exists',
-    currentId: id || null
-  });
+  const { validateUnique, isValidating, isUnique, resetValidation } =
+    useUniqueValidation({
+      checkUnique: checkDepartmentNameUnique,
+      debounceMs: 300,
+      minLength: 2,
+      errorMessage: "This department name already exists",
+      currentId: id || null,
+    });
 
   // Reset validation when component unmounts or ID changes
   useEffect(() => {
@@ -67,27 +63,39 @@ export default function DepartmentMaster() {
     }
   }, [departmentName, validateUnique, resetValidation]);
   const getInputState = () => {
-    if (isValidating) return 'loading';
-    if (errors.department_name) return 'error';
-    if (isUnique === false) return 'error';
-    if (isUnique === true && departmentName && departmentName.trim().length >= 2) return 'success';
-    return 'default';
+    if (isValidating) return "loading";
+    if (errors.department_name) return "error";
+    if (isUnique === false) return "error";
+    if (
+      isUnique === true &&
+      departmentName &&
+      departmentName.trim().length >= 2
+    )
+      return "success";
+    return "default";
   };
 
   const getInputHint = () => {
-    if (isValidating) return 'Checking availability...';
+    if (isValidating) return "Checking availability...";
     if (errors.department_name) return undefined; // Let error message show
-    if (isUnique === false) return 'This department name is already taken';
-    if (isUnique === true && departmentName && departmentName.trim().length >= 2) {
-      return 'Department name is available';
+    if (isUnique === false) return "This department name is already taken";
+    if (
+      isUnique === true &&
+      departmentName &&
+      departmentName.trim().length >= 2
+    ) {
+      return "Department name is available";
     }
-    return '';
+    return "";
   };
   const onSubmit = async (data: any) => {
     //  setLoading(true);
     try {
-      const isNameUnique = await checkDepartmentNameUnique(data.department_name.trim(), id || null);
-      
+      const isNameUnique = await checkDepartmentNameUnique(
+        data.department_name.trim(),
+        id || null
+      );
+
       if (!isNameUnique) {
         return;
       }
@@ -95,8 +103,8 @@ export default function DepartmentMaster() {
       formData.append("department_name", data.department_name);
       const method = id ? "put" : "post";
       const response = await submitDepartmentForm(id ?? null, formData, method);
-      const { success, message } = response.data;   
-      success ? toast.success(`${message}`) : toast.error( `${message}`);
+      const { success, message } = response.data;
+      success ? toast.success(`${message}`) : toast.error(`${message}`);
 
       if (success) {
         reset({
@@ -105,7 +113,6 @@ export default function DepartmentMaster() {
         navigator("/department-master");
         setRefresh(!refresh);
       }
-    
     } catch (err) {
       let msg = "An unexpected error occurred";
 
@@ -129,7 +136,7 @@ export default function DepartmentMaster() {
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-6">
               <Label>
-                Department Name{" "}<span className="text-red-500">*</span>
+                Department Name <span className="text-red-500">*</span>
               </Label>
               <NewInput
                 name="department_name"
@@ -138,12 +145,10 @@ export default function DepartmentMaster() {
                 className="w-full"
                 register={register}
                 errors={errors}
-                success={getInputState() === 'success'}
+                success={getInputState() === "success"}
                 hint={getInputHint()}
-               
               />
             </div>
- 
 
             <div className="col-span-12">
               <button
@@ -157,11 +162,7 @@ export default function DepartmentMaster() {
       </ComponentCard>
 
       <div className="p-4 bg-white rounded-xl shadow">
-        <DepartmentList
-          refresh={refresh}
-          setRefresh={setRefresh}
-          
-        />
+        <DepartmentList refresh={refresh} setRefresh={setRefresh} />
       </div>
     </div>
   );
