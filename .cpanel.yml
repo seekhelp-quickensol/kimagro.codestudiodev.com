@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home2/corpora3/public_html/kimagro.codestudiodev.com
+    - export DEPLOYPATH=/home2/corpora3/nodeapps/kimagro_app
     - /bin/rsync -a --exclude='.git' --exclude='.cpanel.yml' ./ $DEPLOYPATH
     - /bin/chmod 755 $DEPLOYPATH
     - /bin/find $DEPLOYPATH -type d -exec chmod 755 {} \;
